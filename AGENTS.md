@@ -1,2 +1,4 @@
 # Agent instructions
 Read README and ROADMAP. Work on the earliest unblocked issue. Keep Next.js App Router and OpenNext Workers compatibility. Test typecheck, worker build and runtime; report evidence. Never fabricate school facts, expose pupil data, deploy production, purchase services or change secrets without approval. Use approved media, accessible mobile-first UI, poster-first video and public anonymous academy. No private portal until M4. Use PRs for subsequent work.
+
+Read PRODUCT.md, DESIGN.md, ARCHITECTURE.md and ACADEMY.md before implementation. Treat the ecosystem direction and route contract as requirements, not optional styling. Keep the launcher accessible and show only available services.
