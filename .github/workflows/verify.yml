@@ -1,0 +1,39 @@
+name: Verify Workers
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build:worker
+      - name: Smoke test Workers runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler dev --port 8787 > /tmp/worker.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat /tmp/worker.log' EXIT
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8787/ >/dev/null; then break; fi
+            sleep 2
+          done
+          for route in / /primary /secondary /learn /learn/jamb /learn/waec /learn/neco /learn/bece /learn/common-entrance; do
+            curl -fsS "http://localhost:8787$route" >/dev/null
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/invalid)" = 404
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resolved-lockfile
+          path: package-lock.json
