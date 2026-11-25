@@ -28,11 +28,12 @@ jobs:
             if curl -fsS http://localhost:8787/ >/dev/null; then break; fi
             sleep 2
           done
-          for route in / /primary /secondary /admissions /school-life /learn /learn/jamb /learn/waec /learn/neco /learn/bece /learn/common-entrance /learn/jamb/use-of-english /learn/waec/mathematics /learn/neco/mathematics /learn/bece/basic-science /learn/common-entrance/quantitative-reasoning; do
+          for route in / /primary /secondary /admissions /school-life /learn /learn/jamb /learn/waec /learn/neco /learn/bece /learn/common-entrance /learn/jamb/use-of-english /learn/waec/mathematics /learn/neco/mathematics /learn/bece/basic-science /learn/common-entrance/quantitative-reasoning /learn/lesson/quadratic-equations; do
             curl -fsS "http://localhost:8787$route" >/dev/null
           done
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/invalid)" = 404
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/waec/invalid)" = 404
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/lesson/invalid)" = 404
       - uses: actions/upload-artifact@v4
         if: always()
         with:
