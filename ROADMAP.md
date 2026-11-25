@@ -1,13 +1,10 @@
-# Roadmap
+# Delivery roadmap
+Acceptance-based, not time estimates. GitHub issues #1–#16 are canonical work items; see STATUS.md for evidence. Merged does not mean complete. Next: Design System V2 and proper cards/navigation, before additional teaching functionality. Maintain institutional design and academy functionality as two coordinated tracks.
 
-- M0: #1 bootstrap verification, #2 school discovery.
-- M1: #3 design and video hero, #4 school experiences, #5 admissions and school life, #6 all exam tracks.
-- M2: #7 publishing, #8 mathematics pilot, #9 catalogue.
-- M3: #10 WAEC, #11 JAMB, #12 NECO/BECE/Common Entrance, #13 offline.
-- M4: #14 portal, #15 School Ledger/payments.
-- M5: #16 national growth.
+M0 #1: repository, Next/OpenNext, CI and runtime smoke tests implemented; commit verified lockfile/pin dependencies, production smoke automation outstanding. #2: verify school facts/assets/domain/teacher pilot/reviewer. M1 #3: phone-first reusable components, product launcher, cinematic poster-first hero, actual 320/360/390 then 768/1440 tests and performance report; initial shell merged, V2 and footage pending. #4: distinct primary/secondary experiences, trusted hostname routing and canonical URLs; initial pages merged. #5: verified admissions/contact, clubs, approved media and supervised joining; placeholders only. #6: five exam pages, search/subject taxonomy initial implementation; improve cards, local navigation, verified syllabus mappings and honest coverage. Acceptance: no overflow, usable navigation, no fabricated content, accessibility, build/runtime and live release checks.
 
-Issues are acceptance-based; do not close until tested. Scaffold committed; dependency lockfile, runtime verification, CI and official assets pending.
+M2 #7: staff auth, roles, CMS, draft-review-publish, rights/audit and leakage tests. #8: canonical mathematics prototype merged (#20), teacher-reviewed content, syllabus verification, approved video/text alternative, original practice and browser tests still needed. #9: verified clubs/news and book/uniform catalogue, WhatsApp orders first. Acceptance: teacher submits and reviewer publishes without developer; notes/practice usable without video, private drafts inaccessible, academic signoff.
 
-## M1 ecosystem acceptance
-#3: shared accessible nine-dot launcher, distinct product identities and intent-based homepage; #4: shared implementation, primary/secondary identities and trusted hostname routing; #6: five exam landing pages under one academy, canonical lesson model, no standalone exam subdomains. See DESIGN.md and ARCHITECTURE.md. Portal, CBT and other future destinations must not appear as working links until implemented.
+M3 #10 WAEC, #11 JAMB/CBT, #12 NECO/BECE/Common Entrance, #13 offline/revision: official syllabus coverage, reviewed questions/explanations, timed autosave mocks, public offline notes/quizzes, documented rights; optional accounts only after review. M4 #14 portal discovery/pilot, #15 School Ledger and payments: interview stakeholders, highest-value workflow first, roles/audit, import/export, reconciliation and rollback, verified real workflow and permissions. M5 #16 mastery, revision, aggregate competitions, moderated Q&A, partnerships and premium services after demand validation.
+
+Discovery checklist: official name/levels/history, logo, address, contacts/WhatsApp, admissions/fees policy, verified results, subjects/curriculum, staff/clubs/facilities, consent and approved photos/video, domain/webmaster, school YouTube access, teacher equipment/reviewer, current record/payment workflows, book/uniform inventory, School Ledger interface, mobile/data constraints and top stakeholder problems. Record source/date; do not block neutral preview work on missing facts.

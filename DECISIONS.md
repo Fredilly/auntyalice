@@ -1,12 +1,6 @@
-# Decisions
-- Next.js App Router on Cloudflare Workers using OpenNext; validate versions and lockfile in #1.
-- One app with public root, primary, secondary and learn paths; hostname routing later. Portal deferred.
-- Orange #F26B0F, ink #141110, paper #FFF7F0. Mobile-first, poster-first cinematic hero with reduced-motion and low-data fallback (supersedes no-hero-video proposal).
-- All five exam tracks visible initially; reviewed coverage grows incrementally. No implied exam affiliation.
-- Neon, R2, Paystack and school-owned YouTube are planned, not provisioned.
-- Domain, school assets and official contacts unverified. No live student data.
+# Decision log
+Confirmed: Aunty Alice Schools, primary and secondary, Mararaba Nasarawa, orange identity; free core learning; repo Fredilly/auntyalice; standard Next.js/OpenNext on Cloudflare Workers; one application and shared design system. Google-inspired ecosystem with distinct institutional, primary, secondary, academy and later portal experiences; shared nine-dot launcher plus product-local navigation. Exams live under academy paths, no separate exam subdomains. One canonical lesson library, versioned exam mappings. Strictly mobile-first (360px then wider enhancements), proper reusable cards, visual cues and exact URLs in every release report. Design V2 before further teaching expansion. Cinematic approved video hero with poster/low-data/reduced-motion fallback supersedes no-video rule. No public individual rankings, unsupervised pupil groups or unverified claims.
 
-## Approved ecosystem direction
-- One institutional domain and four proposed product subdomains (primary, secondary, learn, portal); exams remain paths under learn, not separate subdomains.
-- Distinct product personalities with shared orange design system and accessible nine-dot launcher. Shop, Library and CBT are capabilities rather than separate deployments.
-- One canonical lesson library with versioned exam mappings. See DESIGN.md, PRODUCT.md, ARCHITECTURE.md and ACADEMY.md.
+Proposed/conditional: root auntyalice.sch.ng plus primary., secondary., learn., portal.; domain availability/eligibility/ownership/cost unverified. Logo and supporting palette pending validation. 200 KiB initial transfer target to measure. Mathematics pilot chosen, teacher approval and syllabus mapping outstanding. Neon, R2, school YouTube, Better Auth, Resend and Paystack planned, not verified/provisioned. School Ledger reuse subject to integration audit; catalogue/WhatsApp first. Optional accounts/AI/monetization after evidence and safeguarding. No delivery dates promised.
+
+Open: school levels/history, official contacts, fees, assets/consent, club/farm facts, teachers/reviewer, curriculum, budget, domain, merchant and existing records/inventory integration. Record evidence before making claims. Approved main merges intentionally trigger automatic deploy; distinguish CI from production delivery. Never alter account permissions or production infrastructure without approval.
