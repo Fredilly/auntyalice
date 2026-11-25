@@ -1,0 +1,2 @@
+import {clubs} from "../lib/catalog";
+export default function SchoolLife(){return <main id="main" className="shell"><section className="page-intro"><p className="eyebrow">BEYOND THE CLASSROOM</p><h1>School life.</h1><p>Explore the proposed activity areas. Actual clubs, schedules and coordinators will be published after school confirmation.</p></section><div className="grid">{clubs.map((c,i)=><article className="tile activity" key={c}><span className="card-index">0{i+1}</span><h2>{c}</h2><p>Details coming after verification.</p></article>)}</div></main>}
