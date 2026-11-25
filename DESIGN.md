@@ -11,3 +11,6 @@ Target WCAG 2.2 AA, semantic HTML, visible focus, accessible contrast, preferred
 
 ## Shared visual language
 Source Serif 4 for institutional headlines and editorial moments; Public Sans for interface, navigation, labels and body. Fallbacks Georgia/Times New Roman and Arial/Helvetica respectively. Prefer locally hosted optimized font files, verify licenses and measure transfer. Avoid exaggerated negative tracking, oversized headings, ubiquitous pill buttons and generic AI/SaaS styling. Use disciplined spacing, restrained radii, authentic approved imagery and editorial contrast. Deep green #203B3B complements academic blue #175B77. Maintain readable text and contrast; white A is a brand symbol, not a precedent for white body text on orange. Mobile-first remains mandatory.
+
+## Progressive disclosure (mandatory)
+Simple by default, powerful when needed. Prioritize one main task per screen, clear school/admissions and study entrances, and contextual secondary actions. Never require role selection, onboarding or registration to access public content. Keep direct URLs, search and the product launcher accessible. Reveal advanced tools only when operational and relevant; never gate them by arbitrary engagement milestones. Preserve accessibility and navigation on narrow screens.

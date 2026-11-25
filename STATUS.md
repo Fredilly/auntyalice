@@ -14,3 +14,6 @@ PR #23 merged at 03:49 UTC: mobile-first Academy cards, local navigation and exa
 
 ## Neon development database verification
 PR #24 merged. Neon project Aunty Alice Schools; development branch br-lucky-cloud-be62md6i. Migrations 001 and 002 applied on development only. Capability roles academy_reader and academy_runtime are NOLOGIN, with no direct draft read or publication pointer update privileges. Runtime can execute review transition function; reader cannot. Actual PostgreSQL synthetic test reached deliberate rollback after draft privacy, submit, self-review denial, missing checklist denial, approval, publication and archive checks; verified zero residual staff/lessons. Production untouched. Remaining: secure login roles/secret handoff, authenticated server identity boundary (actor subject must never originate from client), validated draft creation and staff reads, concurrency/stale revision tests, runtime connection and UI. Do not grant credentials to browser or deploy write endpoints yet.
+
+## Progressive disclosure increment
+This branch proposes simpler public entrances, a truthful Academy navigation label set and device-local recent lesson resume with removal. No new services or staff authorization changes. Browser, storage-disabled and first-time usability acceptance remains pending until actual evidence is recorded.
