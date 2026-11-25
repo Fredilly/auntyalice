@@ -1,0 +1,6 @@
+import Link from "next/link";
+import {notFound} from "next/navigation";
+import {getLesson} from "../../../lib/lessons";
+import Practice from "../../../components/practice";
+import LessonVideo from "../../../components/lesson-video";
+export default async function LessonPage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const lesson=getLesson(slug);if(!lesson)notFound();return <main id="main" className="shell lesson"><Link className="text-link" href="/learn">← Alice Academy</Link><section className="page-intro"><p className="eyebrow">MATHEMATICS / {lesson.topic}</p><h1>{lesson.title}</h1>{lesson.status==="preview"&&<p className="preview-notice">Development sample · awaiting academic review. Not verified against any official exam syllabus.</p>}<p>{lesson.objective}</p></section><LessonVideo id={lesson.videoId}/><section className="section"><h2 className="display">Understand the idea.</h2>{lesson.notes.map(n=><p key={n}>{n}</p>)}</section><section className="section"><h2 className="display">Worked examples.</h2>{lesson.examples.map(e=><article className="tile example" key={e.prompt}><h3>{e.prompt}</h3><ol>{e.steps.map(s=><li key={s}>{s}</li>)}</ol></article>)}</section><Practice questions={lesson.questions} lessonKey={lesson.slug+":v"+lesson.version}/><Link className="text-link" href="/learn">Explore other subjects ↗</Link></main>}

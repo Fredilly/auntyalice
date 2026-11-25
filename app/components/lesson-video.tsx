@@ -1,0 +1,3 @@
+"use client";
+import {useState} from "react";
+export default function LessonVideo({id}:{id?:string}){const [active,setActive]=useState(false);if(!id||!/^[A-Za-z0-9_-]{11}$/.test(id))return <div className="tile"><h3>Teacher video in preparation</h3><p>The written lesson and examples below work without video.</p></div>;return <div className="lesson-video">{active?<iframe title="Teacher lesson video" src={"https://www.youtube-nocookie.com/embed/"+id} allowFullScreen referrerPolicy="strict-origin-when-cross-origin"/>:<button className="cta" onClick={()=>setActive(true)}>Load teacher video ▶</button>}</div>}
