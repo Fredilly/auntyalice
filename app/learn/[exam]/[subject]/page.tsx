@@ -1,0 +1,4 @@
+import {notFound} from "next/navigation";
+import Link from "next/link";
+import {exams,slugify} from "../../../lib/catalog";
+export default async function Subject({params}:{params:Promise<{exam:string;subject:string}>}){const {exam,subject}=await params;const e=exams.find(x=>x.slug===exam);const s=e?.subjects.find(x=>slugify(x)===subject);if(!e||!s)notFound();return <main id="main" className="shell"><Link href={`/learn/${e.slug}`}>← {e.name}</Link><section className="page-intro"><p className="eyebrow">{e.name} / SUBJECT</p><h1>{s}</h1><p>Reviewed syllabus mapping, topic guides, lessons and practice are not yet published.</p></section><div className="tile"><h2>Content in preparation</h2><p>No official syllabus coverage or practice material is claimed at this stage.</p><Link href="/learn">Browse other exams ↗</Link></div></main>}
