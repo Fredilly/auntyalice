@@ -8,3 +8,6 @@ M1: public school pages, primary/secondary, admissions, school life, academy dis
 School life: each confirmed club has coordinator, approved media, schedule, event feed and supervised joining. Candidates: drama, sports/houses, agriculture/farm diary if verified, science/STEM, debate, music, art, chess, entrepreneurship and cultural activities. Produce sales only with approval. Do not imply any club, farm, result or facility exists before verification.
 
 Measure admissions enquiries and applications, mobile task completion, reviewed lessons/week, syllabus coverage, practice completion and learning gains, repeat learning and teacher publishing success. Establish baselines before targets. Core learning remains free. No public individual leaderboards, unsupervised child messaging or behavioral ad tracking.
+
+## Task-first discovery
+Public visitors choose an immediate task rather than learning the ecosystem structure. Admissions and school exploration remain distinct from exam study. Current-family and teacher tasks become prominent only when their actual workflows are operational. Returning learners may resume a recent public lesson on the same device; no identity, tracking or account is required. Users can clear this local history.
