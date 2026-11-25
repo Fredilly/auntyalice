@@ -1,16 +1,11 @@
-# Aunty Alice Schools
+# Aunty Alice Schools — project documentation v2
+2026-11-25 | Mararaba, Nasarawa State, Nigeria
 
-Mobile-first school website and free Nigerian exam academy in Mararaba, Nasarawa. Next.js App Router on Cloudflare Workers via OpenNext. See GitHub issues for the delivery roadmap. Public school, primary, secondary and learn experiences first; private portal later. No real pupil data or unverified school claims.
+One premium digital school and free national learning academy, with operational services introduced in phases.
 
-Run `npm install`, `npm run dev`, `npm run build:worker` and `npm run preview`. Production deployment requires approval.
+Canonical repository: https://github.com/Fredilly/auntyalice
+Live development site: https://auntyalice.fredilly.workers.dev/
 
-## Product specifications
-- [PRODUCT.md](PRODUCT.md): audiences and scope
-- [DESIGN.md](DESIGN.md): brand family, navigation and experience
-- [ARCHITECTURE.md](ARCHITECTURE.md): domain contract and technical design
-- [ACADEMY.md](ACADEMY.md): examination and lesson architecture
-- [ROADMAP.md](ROADMAP.md): issue-driven milestones
-- [DECISIONS.md](DECISIONS.md): agreed decisions
+Read AGENTS.md and STATUS.md first, then PRODUCT.md, DESIGN.md, COMPONENTS.md, ACADEMY.md, ARCHITECTURE.md, DEPLOYMENT.md, ROADMAP.md and DECISIONS.md. GitHub is canonical; refresh the ChatGPT project copy after changes. Issues define acceptance, not merely merged code.
 
-## Deployment verification
-After merging application changes, confirm the Cloudflare production deployment serves the latest main revision. Smoke-test the homepage, /learn, and /learn/lesson/quadratic-equations. GitHub CI success alone does not establish successful production delivery.
+Node 22; npm install (npm ci after lockfile committed), npm run dev, npm run typecheck, npm run build:worker, npm run preview. Follow DEPLOYMENT.md for release verification. Current priority: phone-first design system V2, before expanding teaching functionality.
