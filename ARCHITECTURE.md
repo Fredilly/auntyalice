@@ -1,0 +1,8 @@
+# Architecture
+Standard Next.js App Router + OpenNext Cloudflare Workers, one repository and one initial Worker, subject to verified build and runtime compatibility in #1. Shared UI and domain services; distinct layouts. Neon PostgreSQL per environment, R2 and Paystack planned, not provisioned. School-owned YouTube for public lessons. No production changes without approval.
+
+## Domain contract
+Proposed root auntyalice.sch.ng (ownership unverified); primary., secondary., learn., portal. (portal deferred). No standalone exam subdomains. Local and workers.dev preview paths /primary, /secondary, /learn, /learn/waec, /learn/jamb, /learn/neco, /learn/bece, /learn/common-entrance. On confirmed academy hostname canonical paths /waec, /jamb, /neco, /bece, /common-entrance, /library and later /cbt. Maintain one route/content implementation with trusted hostname mapping, canonical metadata and redirects only once DNS is configured. Do not trust arbitrary forwarded host headers or use hostnames for authorization. No automatic DNS changes. Shared UI and content, private portal with independent server-side authorization and host-scoped cookies.
+
+## Content
+Canonical lessons with stable IDs and many-to-many exam syllabus mappings; no copied lesson pages per exam. Exam landing pages retain unique syllabus and practice context. Use versioned syllabus references and publication status. Public resources only in offline cache. Staff publishing roles, review and audit; private student records isolated by school and role. No real pupil data in fixtures. Validate inputs, protect secrets, document rights and consent, test accessibility and runtime.
