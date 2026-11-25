@@ -1,0 +1,6 @@
+# Teacher publishing foundation
+Issue #7 remains open. This change establishes a read-only lesson contract and original sample content, not an operational CMS. Sample lesson status is preview and must not be represented as academically reviewed or mapped to official syllabuses.
+
+Next: design Neon migrations for staff membership, lessons, immutable revisions, questions, syllabus mappings, reviews and audit events. Teacher submits draft; authorized academic reviewer approves; only approved revision enters public library. Implement authentication, server-side authorization, role isolation, revision transactions and tests before exposing any write UI. No unauthenticated teacher dashboard or mock login. School YouTube IDs validated on server, loaded only after explicit learner interaction. Require text alternative, rights/consent check, reviewed answer keys and official syllabus edition per mapping. No database or paid resources provisioned in this PR.
+
+Canonical lesson URL /learn/lesson/[slug]; exam subject pages reference the same lesson ID rather than duplicate content. Preview track links indicate demonstration only. Local anonymous practice stores answer indices, not identity or analytics, and is versioned and resettable. Later verified assessment attempts must be separate from these local practice records.
