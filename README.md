@@ -11,3 +11,6 @@ Run `npm install`, `npm run dev`, `npm run build:worker` and `npm run preview`. 
 - [ACADEMY.md](ACADEMY.md): examination and lesson architecture
 - [ROADMAP.md](ROADMAP.md): issue-driven milestones
 - [DECISIONS.md](DECISIONS.md): agreed decisions
+
+## Deployment verification
+After merging application changes, confirm the Cloudflare production deployment serves the latest main revision. Smoke-test the homepage, /learn, and /learn/lesson/quadratic-equations. GitHub CI success alone does not establish successful production delivery.
