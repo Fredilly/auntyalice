@@ -17,3 +17,11 @@ PR #24 merged. Neon project Aunty Alice Schools; development branch br-lucky-clo
 
 ## Progressive disclosure increment
 This branch proposes simpler public entrances, a truthful Academy navigation label set and device-local recent lesson resume with removal. No new services or staff authorization changes. Browser, storage-disabled and first-time usability acceptance remains pending until actual evidence is recorded.
+
+## Staff authentication foundation — issue #7
+
+The local `feat/staff-auth-foundation` patch adds the staff login, logout and session lookup handlers. The server resolves identity from a signed staff cookie. Login uses scrypt and a repository interface. The default repository returns an unavailable response through the login handler until an adapter is wired. See [staff authentication integration](docs/STAFF-AUTH.md) for the adapter and session contract.
+
+Local evidence on Node 22.22.1. `npm run typecheck` and `node --test tests/staff-auth.test.mjs tests/publishing.test.mjs` exited 0, with seven staff auth cases and four publishing cases passing. An in-process check of the App Router handlers returned login 503 with the default repository, session lookup 401 without a cookie and 200 with a valid signed cookie, and logout 204 with a cookie deletion header. The sandbox denied the local HTTP listener. This patch remains uncommitted and has no preview or production deployment.
+
+Issue #7 remains open. The next integration step is to wire an isolated development staff adapter and verify runtime login, current staff permissions and revocation before connecting publishing operations.
