@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "School life",
   description:
-    "Clubs, sport and the school farm at Aunty Alice Schools, Mararaba — drama, athletics, agriculture, science, debate, art and music.",
+    "Proposed clubs, sport and a school farm for Aunty Alice Schools, Mararaba — drama, athletics, agriculture, science, debate, art and music. Activities are confirmed with the school.",
 };
 
 type Club = {

@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "School shop",
   description:
-    "Books, uniforms and stationery at Aunty Alice Schools. Check availability and current prices with the school office — nothing is sold or priced on this page.",
+    "Proposed school-shop categories for Aunty Alice Schools — textbooks, uniform, stationery and revision material. No prices or stock are published; confirm with the school office.",
 };
 
 const categories = [
@@ -64,7 +64,7 @@ export default function Shop() {
               Ask about a specific title, size or kit and the school office will confirm whether it is held
               and what it costs. Nothing is ordered or paid for through this website.
             </p>
-            <Link className="cta" href="/admissions">Ask about a book or uniform ↗</Link>
+            <Link className="cta" href="/admissions">Ask the school office ↗</Link>
           </div>
           <ul className="shop-list">
             <li>Class book lists are issued at the start of each term.</li>
