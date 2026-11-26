@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { readSessionActor } from "../lib/staff-auth.mjs";
+import { readCurrentSessionActor } from "../lib/staff-auth.mjs";
 import { staffLessons, type LessonSummary } from "../lib/staff-lesson-repo";
 
 const groups = [
@@ -49,7 +49,7 @@ function LessonGroups({ lessons }: { lessons: LessonSummary[] }) {
 }
 
 export default async function StaffHome() {
-  const actor = readSessionActor(new Request("http://localhost/staff", { headers: await headers() }));
+  const actor = await readCurrentSessionActor(new Request("http://localhost/staff", { headers: await headers() }));
   if (!actor) redirect("/staff/login");
 
   const result = await staffLessons.list(actor);
