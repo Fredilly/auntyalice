@@ -54,3 +54,6 @@ The sandbox denied the local HTTP listener and Chromium startup, so 360px and wi
 
 ## Issue #7 regression CI coverage (proposed)
 The publishing workflow now proposes running every top-level Node regression suite, including staff identity, session, workspace, storage, review, media and cache policy. CI results are pending; this is not evidence of live authentication or database integration. No database grants or runtime configuration are changed.
+
+## Issue #7 current-session authorization (proposed)
+Cookie-based workspace, lesson mutation, video preview, review decision and session lookup now revalidate the staff mapping and deny stale or unavailable identities. Added synthetic regression coverage; CI and authenticated preview evidence pending. No database grants changed.
