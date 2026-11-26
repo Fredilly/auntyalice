@@ -33,13 +33,17 @@ export default function Shop() {
         <p className="eyebrow">SCHOOL SHOP</p>
         <h1>Books and kit.</h1>
         <p>
-          What the school shop carries, and how to check availability before you travel. Prices are
-          confirmed by the office — they are not listed here, because a price that changes without warning
-          is worse than no price at all.
+          The categories a school shop would normally carry, and how to check availability before you
+          travel. This is a proposed catalogue: no stock, no prices and no checkout are published until the
+          school confirms them.
         </p>
       </section>
 
       <section className="section">
+        <div className="proposed-banner">
+          <strong>Proposed catalogue.</strong> Categories only — the school has not confirmed stock,
+          editions or prices. Use the enquiry form to ask about a specific item.
+        </div>
         <div className="grid">
           {categories.map((category) => (
             <article className="tile" key={category.name}>
@@ -57,8 +61,8 @@ export default function Shop() {
             <p className="eyebrow">BEFORE YOU COME</p>
             <h2 className="display">Check it is in stock.</h2>
             <p>
-              Ask about a specific title, size or kit and we will confirm availability and the current price.
-              Orders are handled by the school office, not by this website.
+              Ask about a specific title, size or kit and the school office will confirm whether it is held
+              and what it costs. Nothing is ordered or paid for through this website.
             </p>
             <Link className="cta" href="/admissions">Ask about a book or uniform ↗</Link>
           </div>

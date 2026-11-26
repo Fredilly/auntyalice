@@ -67,12 +67,16 @@ export default function SchoolLife() {
         <p className="eyebrow">BEYOND THE CLASSROOM</p>
         <h1>School life.</h1>
         <p>
-          Clubs, sport and the school farm. Membership is supervised, and clubs run through the term
-          rather than for a single afternoon.
+          The activities the school intends to run. Each one is confirmed with the school office before
+          students are enrolled — what follows is the plan, not a published timetable.
         </p>
       </section>
 
       <section className="section">
+        <div className="proposed-banner">
+          <strong>Proposed activities.</strong> Descriptions below are the intended shape of each club.
+          Meeting days, coordinators and supervision ratios are confirmed by the school, not published here.
+        </div>
         <div className="club-grid">
           {clubs.map((club) => (
             <article className={`club-card club-${club.accent}`} key={club.slug}>
@@ -91,12 +95,13 @@ export default function SchoolLife() {
             <p className="eyebrow">THE SCHOOL FARM</p>
             <h2 className="display">Agriculture, taught outside.</h2>
             <p>
-              Nasarawa is farming country, and the school farm is where biology, economics and patience
-              meet. Students prepare beds, plant, weed and harvest — and the produce goes to the school
-              kitchen and to parents.
+              Nasarawa is farming country, and a school farm is where biology, economics and patience
+              meet. The proposed programme has students preparing beds, planting, weeding and harvesting
+              through the season.
             </p>
             <p className="muted">
-              Crop calendar, plot plan and harvest schedule are being confirmed with the school.
+              Proposed, not confirmed: crop calendar, plot plan, harvest schedule and what happens to the
+              produce are all to be agreed with the school.
             </p>
           </div>
           <div className="farm-steps">
