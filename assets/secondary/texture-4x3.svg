@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="presentation">
+  <rect width="800" height="600" fill="#203B3B"/>
+  <circle cx="700" cy="90" r="220" fill="#3F7A72" opacity=".35"/>
+  <g stroke="#9CC9BC" stroke-opacity=".35" stroke-width="1.2" fill="none">
+    <path d="M-40 470 Q 200 380 420 450 T 840 420"/>
+    <path d="M-40 520 Q 200 430 420 500 T 840 470"/>
+  </g>
+  <rect x="60" y="380" width="120" height="120" rx="10" fill="#3F7A72" opacity=".18"/>
+</svg>
