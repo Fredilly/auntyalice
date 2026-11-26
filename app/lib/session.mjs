@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export const SESSION_VERSION = 1;
+export const SESSION_VERSION = 2;
 const maxTokenLength = 3800;
 const tokenPattern = /^([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]{43})$/;
 

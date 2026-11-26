@@ -1,17 +1,42 @@
-/**
- * Adapter contract: look up a normalized email and return null or a record
- * with id, subject (academy.staff.auth_subject), role, name, active,
- * passwordSalt and passwordHash. Both password fields are lowercase hex.
- * The salt is 16 random bytes and the 64-byte hash uses scrypt with
- * N = 32768, r = 8 and p = 3.
- * @param {string} email
- */
-export async function findStaffByEmail(email) {
-  // No D1 or Postgres staff repository binding is configured for this app.
-  throw new Error("Staff repository not configured");
-}
+if (typeof window !== "undefined") throw new Error("Staff repository is server-only");
 
-/** @param {string} id */
-export async function touchLastLogin(id) {
-  throw new Error("Staff repository not configured");
+// Neon SQL-over-HTTPS keeps this single lookup usable in the Worker without a driver dependency.
+export async function findStaffBySubject(subject) {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("Staff repository not configured");
+
+  const database = URL.parse(connectionString);
+  if (!database || !["postgres:", "postgresql:"].includes(database.protocol) ||
+      !database.hostname.endsWith(".neon.tech")) {
+    throw new Error("Staff repository requires a Neon connection string");
+  }
+
+  const suffix = database.hostname.slice(database.hostname.indexOf("."));
+  const response = await fetch(`https://api${suffix}/sql`, {
+    method: "POST",
+    cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(5000),
+    headers: {
+      "Content-Type": "application/json",
+      "Neon-Connection-String": connectionString,
+      "Neon-Raw-Text-Output": "true",
+      "Neon-Array-Mode": "true",
+    },
+    body: JSON.stringify({
+      query: "SELECT id, auth_subject, role, active FROM academy.staff WHERE auth_subject = $1",
+      params: [subject],
+    }),
+  });
+  if (!response.ok) throw new Error("Staff lookup unavailable");
+
+  const { rows } = await response.json();
+  if (!Array.isArray(rows)) throw new Error("Invalid staff lookup response");
+  if (rows.length === 0) return null;
+  if (rows.length !== 1 || !Array.isArray(rows[0]) || rows[0].length !== 4) {
+    throw new Error("Invalid staff lookup response");
+  }
+
+  const [id, authSubject, role, active] = rows[0];
+  return { id, subject: authSubject, role, active: active === "t" };
 }

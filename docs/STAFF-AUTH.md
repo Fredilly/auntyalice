@@ -1,10 +1,19 @@
-# Staff authentication integration
-Neon development branch br-lucky-cloud-be62md6i: Better Auth provisioned, email/password enabled, sign-up disabled, email verification required, password reset revokes sessions. Production untouched. No user created. The /staff page is an explicitly unavailable entry point, not a login or dashboard. Do not expose forms or write routes until the integration gate passes.
+# Staff authentication
 
-Next: use official Neon Auth Next.js integration compatible with OpenNext, verify server-side session using the provider (never trust client user IDs), map verified session subject to active academy.staff, enforce role/ownership on every read/write, test expired/revoked sessions and unauthenticated access. Use restricted login credentials scoped to capability roles, not the database owner. Configure development preview trusted origin only when actual URL is known. Keep secrets in Worker runtime bindings; never commit credentials. Test auth on an isolated preview before production configuration. Invite actual staff only after approval. No public signup or role self-assignment. Persist validated draft content, mappings and audit events transactionally.
+Cloudflare Access signs the staff identity assertion. The Worker verifies the RS256 signature with the Access team's public keys, cached in memory for five minutes. It checks the issuer, audience, expiration and not-before claims and uses the verified `sub` to look up `academy.staff.auth_subject`. The lookup reads `id`, `auth_subject`, `role` and `active`. Active staff with the `teacher`, `reviewer` or `admin` role can establish a session.
 
-## Server-side foundation
+## Runtime configuration
 
-The scoped issue #7 patch provides `POST /api/staff/login`, `POST /api/staff/logout` and `GET /api/staff/me`. Login takes JSON credentials and looks up a normalized email through `app/lib/staff-repo.mjs`. The adapter contract specifies the stored scrypt salt and hash format and the mapping to `academy.staff.auth_subject`. With the default stub, login returns 503. Tests supply a synthetic repository in-process.
+- Protect `/staff` and `/api/staff`, including their nested paths, with the same Cloudflare Access application and staff policy. Staff open `/staff/login` in the browser, complete Access sign-in and select **Continue to workspace**.
+- Set `CF_ACCESS_TEAM_DOMAIN` to the exact issuer origin, such as `https://your-team.cloudflareaccess.com`. Set `CF_ACCESS_AUD` to the Access application's audience tag. [Cloudflare Access JWT validation](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/)
+- Set `DATABASE_URL` as a Worker runtime secret with a restricted Neon login that can read the four staff columns. For the isolated development check, use branch `br-lucky-cloud-be62md6i`.
+- Set `STAFF_SESSION_SECRET` as a Worker runtime secret with a cryptographically random value. Use a distinct secret per environment.
+- Set `STAFF_DEV_IDENTITY` only in local development or tests when a synthetic subject is needed. The subject still needs an active staff mapping. Providing the variable at all, including an empty value, makes the auth module fail to load in production.
 
-Successful login issues the host-scoped `__Host-staff_session` cookie for eight hours. The cookie uses `HttpOnly`, `Secure`, `SameSite=Lax` and `Path=/`. The version 1 token contains the staff ID, subject, role, display name and `exp` as Unix milliseconds. Its HMAC uses the runtime `STAFF_SESSION_SECRET`. Logout expires the cookie in the browser. The server accepts a signed token until expiry, so immediate revocation and current-role checks are still integration work. Successful login and session lookup both return only `actor.id`, `actor.role` and `actor.name`.
+## Session endpoints
+
+`GET /api/staff/session` exchanges the validated identity and active staff mapping for a 15-minute `__Host-staff_session` cookie. It uses `HttpOnly`, `Secure`, `SameSite=Lax` and `Path=/`. Session version 2 carries the staff ID, subject, role, active flag and Unix-millisecond expiry, signed with the existing HMAC helper. Existing version 1 cookies require a fresh sign-in.
+
+`GET /api/staff/me` reads the signed application session. Both GET endpoints return only the actor's ID and role. `POST /api/staff/logout` expires the application cookie and leaves the upstream Access session in place. Staff authorization is checked against the database when issuing a cookie. A previously issued cookie can retain its permissions for the remaining session lifetime.
+
+The integration gate is a successful sign-in on an authorized Access-protected preview using the restricted Neon login and a synthetic staff mapping. Verify the supported roles, rejection of unknown and inactive subjects, logout, and private draft access before production configuration.

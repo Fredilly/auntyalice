@@ -1,5 +1,5 @@
 import { isReviewComplete, reviewChecklist, transition } from "./publishing.mjs";
-import { requireRole, resolveActor } from "./staff-auth.mjs";
+import { requireRole, readSessionActor } from "./staff-auth.mjs";
 
 export const reviewRoles = Object.freeze(["reviewer", "admin"]);
 
@@ -54,7 +54,7 @@ export function validateReviewDecision(actor, lesson, action, decision) {
 const json = (body, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
-export async function handleReviewDecision(request, id, repository, actor = resolveActor(request)) {
+export async function handleReviewDecision(request, id, repository, actor = readSessionActor(request)) {
   if (!actor) return json({ error: "Staff session required." }, 401);
   if (!requireRole(actor, reviewRoles)) return json({ error: "Only reviewers and administrators can make review decisions." }, 403);
 
