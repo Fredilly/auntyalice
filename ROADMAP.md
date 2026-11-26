@@ -11,3 +11,28 @@ Discovery checklist: official name/levels/history, logo, address, contacts/Whats
 
 ## Progressive disclosure acceptance
 For public UX changes, check a first-time prospective parent's admissions path and a learner's exam-to-lesson path at 360px without instructions or mandatory onboarding. Check direct subject and lesson entry, returning learner resume, clearing recent history, storage-disabled behavior, keyboard/focus and 320/390px then wider layouts. Record actual evidence; do not mark acceptance complete solely on implementation.
+
+## M2 acceptance evidence — 2026-11-26
+
+Run against the Neon development branch with two **separate legitimate identities**
+(teacher `dev:teacher@`, reviewer `dev:reviewer@`), each establishing its own
+session through `/api/staff/session`. No forged cookies, no auth bypass, no
+weakened checks.
+
+| Step | Result |
+|---|---|
+| Teacher session established | 200, role `teacher` |
+| Create draft | 201, lesson + revision UUIDs |
+| Draft isolation before publish | `/learn/lesson/m2-acceptance` → **404** |
+| Submit for review | 200, new revision id |
+| Reviewer session established | 200, role `reviewer`, distinct staff id |
+| Reviewer queue page | 200 |
+| Approve (five-item checklist) | 200, `state: approved` |
+| Publish | 200, `state: published` |
+| Anonymous student read | 200, lesson + practice question rendered |
+| Teacher cookie still valid alongside reviewer | 200 |
+
+Outstanding: **permission revocation** was attempted but the script failed before
+committing the deactivation, so it is **not verified**. Recorded here rather than
+claimed. Next cycle: deactivate a staff row and assert `/api/staff/me` and the
+review page both refuse.
