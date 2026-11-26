@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { reviewChecklist } from "../app/lib/publishing.mjs";
-import { createReviewFixture, isReviewPreview, previewReviewer } from "../app/lib/review-fixture.mjs";
+import { createReviewFixture, isReviewPreview, previewReviewer } from "./fixtures/review-fixture.mjs";
 import { getPublishedLesson, handleReviewDecision } from "../app/lib/review-flow.mjs";
 
 const id = "sample-fractions";

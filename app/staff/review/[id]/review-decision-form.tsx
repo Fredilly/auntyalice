@@ -11,12 +11,11 @@ const decisionMessages = {
   published: "Published to Alice Academy.",
 } satisfies Record<ReviewState, string>;
 
-export default function ReviewDecisionForm({ id, revisionId, slug, initialState, query, independent }: {
+export default function ReviewDecisionForm({ id, revisionId, slug, initialState, independent }: {
   id: string;
   revisionId: string;
   slug: string;
   initialState: "submitted" | ReviewState;
-  query: string;
   independent: boolean;
 }) {
   const [state, setState] = useState(initialState);
@@ -36,7 +35,7 @@ export default function ReviewDecisionForm({ id, revisionId, slug, initialState,
     setError("");
     try {
       const evidence = action === "approve" ? { approval } : action === "request_changes" ? { reason } : {};
-      const response = await fetch(`/api/staff/review/${encodeURIComponent(id)}${query}`, {
+      const response = await fetch(`/api/staff/review/${encodeURIComponent(id)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, revisionId, ...evidence }),
@@ -108,7 +107,7 @@ export default function ReviewDecisionForm({ id, revisionId, slug, initialState,
         </div>
       )}
       {state === "published" && (
-        <Link className="staff-back" href={`/learn/lesson/${encodeURIComponent(slug)}${query}`} prefetch={false}>
+        <Link className="staff-back" href={`/learn/lesson/${encodeURIComponent(slug)}`} prefetch={false}>
           Open lesson in Alice Academy
         </Link>
       )}
