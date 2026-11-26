@@ -43,7 +43,9 @@ export function validateDraft(input) {
   const slug = cleanText(input?.slug);
   const notes = cleanText(input?.notes);
   const tracks = input?.examTracks;
-  const videoUrl = cleanText(input?.videoUrl);
+  // `youtubeUrl` was silently ignored before: a caller sending it got videoId=null
+  // with no error. Accept it as an alias so the field name cannot silently drop data.
+  const videoUrl = cleanText(input?.videoUrl ?? input?.youtubeUrl);
   const videoId = extractYouTubeId(videoUrl);
   const errors = {};
   const field = (name, message) => { errors[name] = message; };
