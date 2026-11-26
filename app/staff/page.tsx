@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { resolveActor } from "../lib/staff-auth.mjs";
+import { readSessionActor } from "../lib/staff-auth.mjs";
 import { staffLessons, type LessonSummary } from "../lib/staff-lesson-repo";
 
 const groups = [
@@ -49,14 +49,14 @@ function LessonGroups({ lessons }: { lessons: LessonSummary[] }) {
 }
 
 export default async function StaffHome() {
-  const actor = resolveActor(new Request("http://localhost/staff", { headers: await headers() }));
+  const actor = readSessionActor(new Request("http://localhost/staff", { headers: await headers() }));
   if (!actor) redirect("/staff/login");
 
   const result = await staffLessons.list(actor);
   return (
     <>
       <h1>Teacher workspace</h1>
-      <p>{actor.name} <span className="staff-role">· {actor.role}</span></p>
+      <p><span className="staff-role">Role</span> {actor.role}</p>
       {result.ok ? <LessonGroups lessons={result.value} /> : (
         <p className="staff-panel">{result.error}</p>
       )}

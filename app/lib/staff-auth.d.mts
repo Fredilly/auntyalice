@@ -1,25 +1,26 @@
 type StaffRole = "teacher" | "reviewer" | "admin";
 
-interface StaffActor {
+export interface StaffActor {
   id: string;
   subject: string;
   role: StaffRole;
-  name: string;
+  active: true;
 }
 
-interface StaffRecord extends StaffActor {
+interface StaffRecord {
+  id: string;
+  subject: string;
+  role: string;
   active: boolean;
-  passwordSalt: string;
-  passwordHash: string;
 }
 
 interface StaffRepository {
-  findStaffByEmail(email: string): Promise<StaffRecord | null>;
-  touchLastLogin(id: string): Promise<void>;
+  findStaffBySubject(subject: string): Promise<StaffRecord | null>;
 }
 
-export function resolveActor(request: Pick<Request, "headers">): StaffActor | null;
+export function resolveActor(request: Pick<Request, "headers">, repository?: StaffRepository): Promise<StaffActor | null>;
+export function readSessionActor(request: Pick<Request, "headers">): StaffActor | null;
 export function requireRole(actor: StaffActor | null, allowedRoles: readonly StaffRole[]): boolean;
-export function login(request: Request, repository?: StaffRepository): Promise<Response>;
+export function establishSession(request: Request, repository?: StaffRepository): Promise<Response>;
 export function logout(): Response;
 export function me(request: Request): Response;

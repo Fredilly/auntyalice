@@ -1,24 +1,18 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { workspaceUnavailable } from "../../lib/staff-workspace.mjs";
 
-export default function LoginForm() {
+export default function SessionButton({ development }: { development: boolean }) {
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<{ message: string; unavailable: boolean }>();
 
-  async function signIn(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function signIn() {
     if (pending) return;
-    const form = new FormData(event.currentTarget);
     setPending(true);
     setFailure(undefined);
     try {
-      const response = await fetch("/api/staff/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.get("email"), password: form.get("password") }),
-      });
+      const response = await fetch("/api/staff/session", { cache: "no-store", redirect: "error" });
       if (response.ok) {
         window.location.replace("/staff");
         return;
@@ -35,22 +29,16 @@ export default function LoginForm() {
   }
 
   return (
-    <form method="post" className="staff-panel staff-fields" onSubmit={signIn}>
-      <label>
-        Email
-        <input type="email" name="email" autoComplete="username" required />
-      </label>
-      <label>
-        Password
-        <input type="password" name="password" autoComplete="current-password" required />
-      </label>
+    <div className="staff-panel staff-fields">
       <div role="alert">
         {failure && <div className="staff-alert">
           {failure.unavailable && <p>{workspaceUnavailable}</p>}
           <p>{failure.message}</p>
         </div>}
       </div>
-      <button className="staff-primary" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</button>
-    </form>
+      <button type="button" className="staff-primary" disabled={pending} onClick={signIn}>
+        {pending ? "Signing in…" : development ? "Continue as development staff" : "Continue to workspace"}
+      </button>
+    </div>
   );
 }

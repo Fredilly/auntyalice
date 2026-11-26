@@ -1,25 +1,30 @@
-import { scrypt, timingSafeEqual } from "node:crypto";
-import { promisify } from "node:util";
+import { resolveIdentity } from "./identity.mjs";
 import { SESSION_VERSION, sign, verify } from "./session.mjs";
 import * as staffRepo from "./staff-repo.mjs";
 
 if (typeof window !== "undefined") throw new Error("Staff auth is server-only");
 
 const cookieName = "__Host-staff_session";
-const sessionSeconds = 8 * 60 * 60;
+const sessionSeconds = 15 * 60;
 const roles = ["teacher", "reviewer", "admin"];
-const deriveKey = promisify(scrypt);
-const scryptOptions = { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 };
 const text = (value) => typeof value === "string" && value.trim().length > 0;
 
 function staffActor(record) {
-  if (!text(record?.id) || !text(record.subject) || !text(record.name) || !roles.includes(record.role)) {
+  if (record?.active !== true || !text(record.id) || !text(record.subject) || !roles.includes(record.role)) {
     return null;
   }
-  return { id: record.id, subject: record.subject, role: record.role, name: record.name };
+  return { id: record.id, subject: record.subject, role: record.role, active: true };
 }
 
-export function resolveActor(request) {
+export async function resolveActor(request, repository = staffRepo) {
+  const identity = await resolveIdentity(request);
+  if (!identity) return null;
+
+  const staff = await repository.findStaffBySubject(identity.subject);
+  return staff?.subject === identity.subject ? staffActor(staff) : null;
+}
+
+export function readSessionActor(request) {
   const cookies = request.headers.get("cookie");
   if (!cookies) return null;
 
@@ -40,10 +45,10 @@ export function requireRole(actor, allowedRoles) {
   return Boolean(actor && roles.includes(actor.role) && allowedRoles.includes(actor.role));
 }
 
-function actorResponse({ id, role, name }, cookie) {
+function actorResponse({ id, role }, cookie) {
   const headers = new Headers({ "Cache-Control": "no-store" });
   if (cookie) headers.set("Set-Cookie", cookie);
-  return Response.json({ actor: { id, role, name } }, { headers });
+  return Response.json({ actor: { id, role } }, { headers });
 }
 
 function errorResponse(status, error) {
@@ -54,47 +59,15 @@ function sessionCookie(token, maxAge) {
   return `${cookieName}=${token}; Max-Age=${maxAge}; Path=/; HttpOnly; Secure; SameSite=Lax`;
 }
 
-async function verifyPassword(password, candidate) {
-  const { passwordSalt, passwordHash } = candidate ?? {};
-  const hasHash = typeof passwordSalt === "string" && passwordSalt.length === 32 &&
-    !/[^0-9a-f]/.test(passwordSalt) && typeof passwordHash === "string" &&
-    passwordHash.length === 128 && !/[^0-9a-f]/.test(passwordHash);
-  // Unknown accounts still run scrypt with the same parameters.
-  const salt = hasHash ? Buffer.from(passwordSalt, "hex") : Buffer.alloc(16);
-  const expected = hasHash ? Buffer.from(passwordHash, "hex") : Buffer.alloc(64);
-  const derived = await deriveKey(password, salt, expected.length, scryptOptions);
-  return timingSafeEqual(derived, expected) && hasHash;
-}
-
-export async function login(request, repository = staffRepo) {
-  const mediaType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
-  if (mediaType !== "application/json") return errorResponse(415, "Expected application/json");
-  let credentials;
+export async function establishSession(request, repository = staffRepo) {
   try {
-    credentials = await request.json();
-  } catch {
-    return errorResponse(400, "Invalid credentials format");
-  }
-  const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
-  const password = credentials?.password;
-  if (!email || email.length > 254 || typeof password !== "string" || !password ||
-      Buffer.byteLength(password) > 1024) {
-    return errorResponse(400, "Invalid credentials format");
-  }
-
-  try {
-    const staff = await repository.findStaffByEmail(email);
-    const validPassword = await verifyPassword(password, staff);
-    const actor = staffActor(staff);
-    if (!validPassword || staff?.active !== true || !actor) {
-      return errorResponse(401, "Invalid email or password");
-    }
+    const actor = await resolveActor(request, repository);
+    if (!actor) return errorResponse(401, "An authorized staff identity is required");
 
     const token = sign({ ...actor, v: SESSION_VERSION, exp: Date.now() + sessionSeconds * 1000 });
-    await repository.touchLastLogin(actor.id);
     return actorResponse(actor, sessionCookie(token, sessionSeconds));
   } catch {
-    return errorResponse(503, "Staff login unavailable");
+    return errorResponse(503, "Staff sign-in unavailable");
   }
 }
 
@@ -106,6 +79,6 @@ export function logout() {
 }
 
 export function me(request) {
-  const actor = resolveActor(request);
+  const actor = readSessionActor(request);
   return actor ? actorResponse(actor) : errorResponse(401, "Staff session required");
 }

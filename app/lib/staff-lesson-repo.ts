@@ -1,10 +1,10 @@
 import "server-only";
 
-import type { resolveActor } from "./staff-auth.mjs";
+import type { StaffActor } from "./staff-auth.mjs";
 import type { ReviewAction, ReviewDecision, ReviewState } from "./review-flow.mjs";
 import { workspaceUnavailable, type LessonDraft } from "./staff-workspace.mjs";
 
-export type StaffActor = NonNullable<ReturnType<typeof resolveActor>>;
+export type { StaffActor } from "./staff-auth.mjs";
 type LessonState = "draft" | "changes_requested" | "submitted" | "approved" | "published" | "archived";
 
 export interface LessonSummary {

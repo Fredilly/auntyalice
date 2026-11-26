@@ -7,7 +7,7 @@ export const previewReviewer = {
   id: "sample-reviewer",
   subject: "development-preview",
   role: "reviewer",
-  name: "Sample reviewer",
+  active: true,
 };
 
 export function isReviewPreview(value) {

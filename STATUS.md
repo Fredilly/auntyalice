@@ -43,3 +43,11 @@ Issue #7 remains open. The next integration step is to verify the staff and publ
 - Branding wired: OG card, favicon, hero texture, school-card textures. Labelled placeholders deliberately exclude any child photography and state the reason.
 - Verified this cycle: typecheck 0; 27/27 tests; `/` 200 and `/media/branding/logo-mark.svg` 200 in dev; screenshots at 360px and 1200px.
 - Blocked: Neon grants on `academy_app_dev` (file: db/grants/dev_app_role.sql). Adapter PR is written to degrade to 503 until applied.
+
+## Staff identity schema alignment, issue #7 part E
+
+The local `feat/auth-schema-align` patch verifies Cloudflare Access assertions and looks up active staff by `academy.staff.auth_subject`. The 15-minute session is established with `GET /api/staff/session`. Staff see Access sign-in instructions and **Continue to workspace** at `/staff/login`. The local development subject is opt-in and rejected at module load in production. See [staff authentication](docs/STAFF-AUTH.md) for configuration and the preview verification gate.
+
+On Node 22.22.1, `npm run typecheck` and `node --test tests/*.mjs` exited 0. All six test files passed, with 39 passing cases when counted individually. An in-process Next.js check rendered the Access instructions, redirected an anonymous workspace request to login, rejected an email-only session request with 401, and returned 200 with a 15-minute cookie for a signed synthetic assertion and mocked active Neon row. The cookie opened the workspace and `/api/staff/me`. Logout returned 204 and expired the cookie. The former password endpoint returned 404.
+
+The sandbox denied the local HTTP listener and Chromium startup, so 360px and wider screenshots, browser accessibility and performance checks are pending. The change is uncommitted and has no CI run, preview or deployment. Issue #7 remains open. The next integration check requires an authorized Access-protected preview, runtime bindings and a restricted Neon login with staff read access on `br-lucky-cloud-be62md6i`.
