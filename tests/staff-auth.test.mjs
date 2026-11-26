@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { after, before, test } from "node:test";
 import { SESSION_VERSION, sign, verify } from "../app/lib/session.mjs";
-import { logout, me, readSessionActor, requireRole } from "../app/lib/staff-auth.mjs";
+import { logout, me, readSessionActor, readCurrentSessionActor, requireRole } from "../app/lib/staff-auth.mjs";
 
 const envKey = "STAFF_SESSION_SECRET";
 const actor = { id: "staff-1", subject: "synthetic-subject", role: "teacher", active: true };
@@ -85,14 +85,37 @@ test("role gate requires an actor with an allowed staff role", () => {
 
 test("session lookup exposes the public actor and logout expires the cookie", async () => {
   const request = new Request(`${url}/me`, { headers: { Cookie: `${cookieName}=${sign(payload)}` } });
-  const current = me(request);
+  const current = await me(request, { findStaffBySubject: async () => actor });
   assert.equal(current.status, 200);
   assert.equal(current.headers.get("Cache-Control"), "no-store");
   assert.deepEqual(await current.json(), { actor: { id: actor.id, role: actor.role } });
-  assert.equal(me(new Request(`${url}/me`)).status, 401);
+  assert.equal((await me(new Request(`${url}/me`))).status, 401);
 
   const signedOut = logout();
   assert.equal(signedOut.status, 204);
   assert.equal(signedOut.headers.get("Set-Cookie"),
     `${cookieName}=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax`);
+});
+
+test("current authorization rejects revoked, changed or unavailable staff mappings", async () => {
+  const request = new Request(url, { headers: { Cookie: `${cookieName}=${sign(payload)}` } });
+  const repo = record => ({ findStaffBySubject: async subject => {
+    assert.equal(subject, actor.subject);
+    return record;
+  } });
+  assert.deepEqual(await readCurrentSessionActor(request, repo(actor)), actor);
+  for (const record of [null, {...actor, active:false}, {...actor, role:"admin"}, {...actor,id:"replacement"}, {...actor,subject:"other"}]) {
+    assert.equal(await readCurrentSessionActor(request, repo(record)), null);
+    assert.equal((await me(request, repo(record))).status, 401);
+  }
+  assert.equal(await readCurrentSessionActor(request, {findStaffBySubject: async () => {throw new Error("offline");}}), null);
+  assert.equal(await readCurrentSessionActor(new Request(url), {findStaffBySubject: async () => {throw new Error("unexpected lookup");}}), null);
+});
+
+ test("review decisions never fall back to a signed cookie when current actor is absent", async () => {
+  const { handleReviewDecision } = await import("../app/lib/review-flow.mjs");
+  const request = new Request(url, { method: "POST", headers: { Cookie: `${cookieName}=${sign({...payload, role:"reviewer"})}`, "Content-Type":"application/json" }, body: JSON.stringify({action:"publish",revisionId:"r1"}) });
+  const repository = { get: async () => { throw new Error("unexpected private read"); }, transition: async () => { throw new Error("unexpected mutation"); } };
+  assert.equal((await handleReviewDecision(request,"lesson",repository)).status,401);
+  assert.equal((await handleReviewDecision(request,"lesson",repository,null)).status,401);
 });

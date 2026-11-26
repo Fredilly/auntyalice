@@ -23,4 +23,6 @@ export function readSessionActor(request: Pick<Request, "headers">): StaffActor 
 export function requireRole(actor: StaffActor | null, allowedRoles: readonly StaffRole[]): boolean;
 export function establishSession(request: Request, repository?: StaffRepository): Promise<Response>;
 export function logout(): Response;
-export function me(request: Request): Response;
+export function me(request: Request, repository?: StaffRepository): Promise<Response>;
+
+export function readCurrentSessionActor(request: Pick<Request, "headers">, repository?: StaffRepository): Promise<StaffActor | null>;
