@@ -8,5 +8,13 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  // Private media bucket. Never enable public access or an r2.dev route:
+  // objects are served only through /media/[...path] in the Worker.
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "auntyalice-assets"
+    }
+  ]
 }

@@ -35,3 +35,11 @@ For local development, open `/staff/review?preview=1`, select **Comparing fracti
 Local verification on Node 22.22.1 included typecheck and 19 passing test cases. An in-process Next.js route check returned 403 for teachers, 503 from the unconfigured decision endpoint, and 404 for the synthetic lesson before publication. After publication, the labelled Academy preview returned 200 for an anonymous request and the ordinary URL still returned 404. Chromium and loopback listeners were blocked by the sandbox, so browser interaction, mobile screenshots and transfer measurements remain pending. There is no part C commit, PR, CI run or deployment. GitHub main was at `3b9c854` with part B open in PR #32, so this patch uses the part B interfaces present in the worktree.
 
 Issue #7 remains open. The next integration step is to verify the staff and publication adapters against an isolated development database.
+
+## 2026-11-26 cycle — R2 assets live, reviewer flow merged
+- PR #33 merged: independent reviewer flow (queue, checklist, author≠reviewer enforced, publication, public lesson page 404s drafts). 27/27 tests at merge.
+- PR #34 rebased onto main after #33; conflicts resolved toward main's versions.
+- R2 `auntyalice-assets`: 11 objects uploaded via S3 API, listed back (200), 10 fetched and rendered (content-type image/svg+xml, sizes 287B–1.9KB). Unsigned GET denied; no public access, no r2.dev route. Served only via `/media/[...path]`.
+- Branding wired: OG card, favicon, hero texture, school-card textures. Labelled placeholders deliberately exclude any child photography and state the reason.
+- Verified this cycle: typecheck 0; 27/27 tests; `/` 200 and `/media/branding/logo-mark.svg` 200 in dev; screenshots at 360px and 1200px.
+- Blocked: Neon grants on `academy_app_dev` (file: db/grants/dev_app_role.sql). Adapter PR is written to degrade to 503 until applied.

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#FFF7F0"/>
+  <circle cx="1010" cy="120" r="260" fill="#F26B0F" opacity="0.10"/>
+  <path transform="translate(80 120) scale(2.2)" d="M50 3 L97 97 H74.5 L65.5 79 H34.5 L25.5 97 H3 Z M50 37 L39.5 58.5 H60.5 Z" fill="#F26B0F" fill-rule="evenodd"/>
+  <text x="80" y="470" font-family="Helvetica, Arial, sans-serif" font-size="86" font-weight="bold" fill="#141110" letter-spacing="-4">Aunty Alice Schools</text>
+  <text x="84" y="530" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#175B77">Mararaba, Nasarawa State · Primary, Secondary, Alice Academy</text>
+</svg>
