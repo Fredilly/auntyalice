@@ -1,3 +1,65 @@
+import { headers } from "next/headers";
 import Link from "next/link";
-export const metadata={title:"Staff publishing",robots:{index:false,follow:false}};
-export default function StaffEntry(){return <main id="main" className="shell" style={{maxWidth:620}}><section className="page-intro"><p className="eyebrow">Alice Academy · Staff</p><h1 style={{fontSize:"clamp(2rem,8vw,3.5rem)"}}>Teacher workspace</h1><p>Prepare lessons, submit for academic review and publish approved learning material.</p></section><section className="tile"><h2>Staff access is being prepared</h2><p>Sign-in is not available on this website yet. Only invited school staff will be able to access the publishing workspace once it is connected and verified.</p><p>No student or teacher information is collected here.</p><Link className="text-link" href="/learn">Return to Alice Academy</Link></section></main>}
+import { redirect } from "next/navigation";
+import { resolveActor } from "../lib/staff-auth.mjs";
+import { staffLessons, type LessonSummary } from "../lib/staff-lesson-repo";
+
+const groups = [
+  { title: "Draft", states: ["draft", "changes_requested"], empty: "Lessons that need writing or changes will appear here." },
+  { title: "In review", states: ["submitted", "approved"], empty: "Lessons will appear here after they’re submitted for review." },
+  { title: "Published", states: ["published"], empty: "Published lessons will appear here when they’re available in the Academy." },
+];
+
+function LessonGroups({ lessons }: { lessons: LessonSummary[] }) {
+  const hasLessons = lessons.some(lesson => lesson.state !== "archived");
+  if (!hasLessons) {
+    return (
+      <section className="staff-panel">
+        <h2>No lessons yet</h2>
+        <p>Lessons you can access will appear here. If you expected a lesson, ask your workspace administrator to check your access.</p>
+      </section>
+    );
+  }
+
+  return (
+    <div className="staff-groups">
+      {groups.map(group => {
+        const items = lessons.filter(lesson => group.states.includes(lesson.state));
+        return (
+          <section className="staff-panel" key={group.title}>
+            <h2>{group.title}</h2>
+            {items.length ? (
+              <ul className="staff-lessons">
+                {items.map(lesson => (
+                  <li key={lesson.id}>
+                    <Link href={`/staff/lessons/${encodeURIComponent(lesson.id)}`} prefetch={false}>
+                      {lesson.title}
+                      {lesson.state === "changes_requested" && <small>Changes requested</small>}
+                      {lesson.state === "approved" && <small>Approved for publication</small>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : <p>{group.empty}</p>}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+export default async function StaffHome() {
+  const actor = resolveActor(new Request("http://localhost/staff", { headers: await headers() }));
+  if (!actor) redirect("/staff/login");
+
+  const result = await staffLessons.list(actor);
+  return (
+    <>
+      <h1>Teacher workspace</h1>
+      <p>{actor.name} <span className="staff-role">· {actor.role}</span></p>
+      {result.ok ? <LessonGroups lessons={result.value} /> : (
+        <p className="staff-panel">{result.error}</p>
+      )}
+    </>
+  );
+}
