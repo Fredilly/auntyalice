@@ -32,7 +32,14 @@ weakened checks.
 | Anonymous student read | 200, lesson + practice question rendered |
 | Teacher cookie still valid alongside reviewer | 200 |
 
-Outstanding: **permission revocation** was attempted but the script failed before
-committing the deactivation, so it is **not verified**. Recorded here rather than
-claimed. Next cycle: deactivate a staff row and assert `/api/staff/me` and the
-review page both refuse.
+Outstanding: **permission revocation** is not verified, and cannot be exercised
+from this side. The upgrade was attempted and failed with `42501 permission denied
+for table staff` — the application role holds SELECT only on `academy.staff`, so it
+cannot deactivate anyone. That is correct privilege separation, not a bug: revocation
+is an owner-level action.
+
+To close it, the owner runs one statement and I assert the result:
+
+    UPDATE academy.staff SET active = false WHERE auth_subject = 'dev:reviewer@auntyalice.test';
+
+Expected: `/api/staff/me` and `/staff/review` both refuse while the flag is false.
