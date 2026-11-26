@@ -57,3 +57,5 @@ The publishing workflow now proposes running every top-level Node regression sui
 
 ## Issue #7 current-session authorization (proposed)
 Cookie-based workspace, lesson mutation, video preview, review decision and session lookup now revalidate the staff mapping and deny stale or unavailable identities. Added synthetic regression coverage; CI and authenticated preview evidence pending. No database grants changed.
+
+2026-11-26: PR #43 prior head e0411b6 passed Publishing policy tests (45804454300) and Verify Workers (45804454202). Independent review removed the review helper's stale-cookie fallback and added a signed-cookie denial regression. New CI pending; no live preview or grant changes.
