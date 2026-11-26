@@ -26,14 +26,14 @@ const clubs: Club[] = [
   {
     name: "Sports & athletics",
     slug: "sports",
-    body: "Football, athletics and inter-house competition. Training is supervised and open to every year group.",
+    body: "Football, athletics and inter-house competition, with training intended to be open to every year group.",
     meets: "Day and time confirmed with the coordinator",
     accent: "secondary",
   },
   {
     name: "Agriculture",
     slug: "agriculture",
-    body: "The school farm: planting, tending and harvesting through the term, with the science taught alongside it.",
+    body: "A school farm would let students plant, tend and harvest through the season, with the science taught alongside the work.",
     meets: "Seasonal — planting and harvest weeks",
     accent: "primary",
   },
