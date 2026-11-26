@@ -111,3 +111,11 @@ test("current authorization rejects revoked, changed or unavailable staff mappin
   assert.equal(await readCurrentSessionActor(request, {findStaffBySubject: async () => {throw new Error("offline");}}), null);
   assert.equal(await readCurrentSessionActor(new Request(url), {findStaffBySubject: async () => {throw new Error("unexpected lookup");}}), null);
 });
+
+ test("review decisions never fall back to a signed cookie when current actor is absent", async () => {
+  const { handleReviewDecision } = await import("../app/lib/review-flow.mjs");
+  const request = new Request(url, { method: "POST", headers: { Cookie: `${cookieName}=${sign({...payload, role:"reviewer"})}`, "Content-Type":"application/json" }, body: JSON.stringify({action:"publish",revisionId:"r1"}) });
+  const repository = { get: async () => { throw new Error("unexpected private read"); }, transition: async () => { throw new Error("unexpected mutation"); } };
+  assert.equal((await handleReviewDecision(request,"lesson",repository)).status,401);
+  assert.equal((await handleReviewDecision(request,"lesson",repository,null)).status,401);
+});
