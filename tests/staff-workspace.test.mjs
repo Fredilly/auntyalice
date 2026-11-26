@@ -105,3 +105,13 @@ test("lesson route modules import and call the session actor resolver", () => {
     assert.match(source, /readSessionActor\(request\)/);
   }
 });
+
+test("youtubeUrl is accepted as an alias for videoUrl", () => {
+  const base = { title: "T", slug: "t", examTracks: ["waec"], notes: "n",
+    questions: [{ id: "q1", prompt: "p", options: ["a", "b"], answer: 0, explanation: "e" }] };
+  const a = validateDraft({ ...base, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" });
+  const b = validateDraft({ ...base, youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" });
+  assert.equal(a.ok, true); assert.equal(b.ok, true);
+  assert.equal(b.draft.videoId, "dQw4w9WgXcQ");
+  assert.equal(b.draft.videoId, a.draft.videoId);
+});
