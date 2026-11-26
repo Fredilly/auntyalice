@@ -1,18 +1,17 @@
 import { forbidden, notFound } from "next/navigation";
 import LessonVideo from "../../../components/lesson-video";
 import { exams } from "../../../lib/catalog";
-import { reviewPreviewNotice } from "../../../lib/review-fixture.mjs";
+import { staffLessons } from "../../../lib/staff-lesson-repo";
 import { isIndependentReviewer } from "../../../lib/review-flow.mjs";
-import { reviewContext, type ReviewSearchParams } from "../review-context";
+import { reviewActor } from "../review-context";
 import ReviewDecisionForm from "./review-decision-form";
 
-export default async function ReviewLessonPage({ params, searchParams }: {
+export default async function ReviewLessonPage({ params }: {
   params: Promise<{ id: string }>;
-  searchParams: ReviewSearchParams;
 }) {
-  const { actor, preview, query, repository } = await reviewContext(searchParams);
+  const actor = await reviewActor();
   const { id } = await params;
-  const result = await repository.get(actor, id);
+  const result = await staffLessons.get(actor, id);
   if (!result.ok) {
     if (result.status === 404) notFound();
     if (result.status === 403) forbidden();
@@ -26,14 +25,12 @@ export default async function ReviewLessonPage({ params, searchParams }: {
 
   return (
     <>
-      {preview && <p className="staff-review-preview">{reviewPreviewNotice}</p>}
-      <a className="staff-back" href={`/staff/review${query}`}>← Review queue</a>
+      <a className="staff-back" href="/staff/review">← Review queue</a>
       <h1>{draft.title}</h1>
       <p>{tracks.join(", ") || "No exam tracks selected"}</p>
       <div className="staff-fields">
         <section className="staff-panel staff-video">
           <h2>Video</h2>
-          {preview && draft.videoId && <p>The sample video ID is a placeholder.</p>}
           {draft.videoId ? <LessonVideo id={draft.videoId} /> : <p>No video was submitted with this lesson.</p>}
         </section>
         <section className="staff-panel">
@@ -57,7 +54,7 @@ export default async function ReviewLessonPage({ params, searchParams }: {
           </ol>
         </details>
         <ReviewDecisionForm key={lesson.revisionId} id={id} revisionId={lesson.revisionId} slug={draft.slug} initialState={lesson.state}
-          query={query} independent={isIndependentReviewer(actor, lesson)} />
+          independent={isIndependentReviewer(actor, lesson)} />
       </div>
     </>
   );

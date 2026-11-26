@@ -92,3 +92,24 @@ export function validateDraft(input) {
     ? { ok: false, errors }
     : { ok: true, draft: { title, slug, examTracks: tracks, videoId, notes, questions } };
 }
+
+export function validateSyllabusMappings(input, tracks) {
+  if (!Array.isArray(input)) return null;
+  const mappings = [];
+  const seen = new Set();
+  for (const entry of input) {
+    const exam = entry?.exam;
+    const syllabusEdition = cleanText(entry?.syllabusEdition);
+    const objectiveReference = cleanText(entry?.objectiveReference);
+    const sourceUrl = cleanText(entry?.sourceUrl);
+    const url = URL.canParse(sourceUrl) ? new URL(sourceUrl) : null;
+    const key = JSON.stringify([exam, syllabusEdition, objectiveReference]);
+    if (!tracks.includes(exam) || !syllabusEdition || !objectiveReference ||
+        !sourceUrl.startsWith("https://") || !url || url.username || url.password || seen.has(key)) {
+      return null;
+    }
+    seen.add(key);
+    mappings.push({ exam, syllabusEdition, objectiveReference, sourceUrl });
+  }
+  return mappings;
+}

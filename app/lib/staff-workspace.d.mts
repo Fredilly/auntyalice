@@ -23,3 +23,12 @@ export function extractYouTubeId(value: unknown): string | null;
 export function validateDraft(input: unknown):
   | { ok: true; draft: LessonDraft }
   | { ok: false; errors: Record<string, string> };
+
+export interface SyllabusMapping {
+  exam: ExamTrack;
+  syllabusEdition: string;
+  objectiveReference: string;
+  sourceUrl: string;
+}
+
+export function validateSyllabusMappings(input: unknown, tracks: ExamTrack[]): SyllabusMapping[] | null;

@@ -1,7 +1,5 @@
-import { reviewRoles, validateReviewDecision } from "./review-flow.mjs";
-import { requireRole } from "./staff-auth.mjs";
-
-export const reviewPreviewNotice = "Development preview — synthetic data, not saved";
+import { reviewRoles, validateReviewDecision } from "../../app/lib/review-flow.mjs";
+import { requireRole } from "../../app/lib/staff-auth.mjs";
 
 export const previewReviewer = {
   id: "sample-reviewer",
@@ -72,9 +70,4 @@ export function createReviewFixture() {
       return { ok: true, value: { ...structuredClone(lesson.draft), revisionId: lesson.revisionId, state: "published" } };
     },
   };
-}
-
-export function getReviewPreviewFixture() {
-  if (process.env.NODE_ENV !== "development") throw new Error("The review fixture is development-only.");
-  return globalThis.auntyAliceReviewFixture ??= createReviewFixture();
 }
