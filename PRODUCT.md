@@ -11,3 +11,11 @@ Measure admissions enquiries and applications, mobile task completion, reviewed 
 
 ## Task-first discovery
 Public visitors choose an immediate task rather than learning the ecosystem structure. Admissions and school exploration remain distinct from exam study. Current-family and teacher tasks become prominent only when their actual workflows are operational. Returning learners may resume a recent public lesson on the same device; no identity, tracking or account is required. Users can clear this local history.
+
+## Intent routing (2026-11-26)
+
+Three audiences, three doors, no exceptions: parents route to admissions,
+students to the academy, everyone else to the school pages. The homepage states
+each intention in the visitor's own words rather than naming our internal
+departments. Any new feature must justify which door it hangs from before it is
+built; if it needs a fourth door, the product has drifted.

@@ -12,3 +12,18 @@ Brand mark: orange square or softly rounded box #F26B0F with centered white capi
 
 ## Progressive disclosure components
 Use a primary task with quieter secondary links, compact contextual actions and native accessible disclosure controls where appropriate. Avoid duplicate directory cards and misleading navigation labels. A recent lesson affordance must reflect a real visit, support dismissal and tolerate unavailable storage. Keep complete lesson content reachable without interaction or JavaScript where possible.
+
+## Door component (2026-11-26)
+
+`Door` — the homepage intent card. Required parts: an audience kicker (FOR
+PARENTS / FOR STUDENTS / OUR SCHOOL), a question in the visitor's words, one
+sentence of proof, and a single action label. Three tones map to the existing
+tokens: `door-primary` (sand), `door-dark` (deep teal), `door-neutral` (paper).
+Never more than three on a page; never a door that leads to another list of doors.
+
+## Mobile sheet (2026-11-26)
+
+`header.tsx` renders a desktop menu group and a mobile sheet from the same link
+arrays. The sheet traps focus on open, closes on Escape and on route change,
+locks body scroll, and returns focus to the trigger. It is the only place where
+the full section list appears.

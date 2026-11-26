@@ -14,3 +14,31 @@ Source Serif 4 for institutional headlines and editorial moments; Public Sans fo
 
 ## Progressive disclosure (mandatory)
 Simple by default, powerful when needed. Prioritize one main task per screen, clear school/admissions and study entrances, and contextual secondary actions. Never require role selection, onboarding or registration to access public content. Keep direct URLs, search and the product launcher accessible. Reveal advanced tools only when operational and relevant; never gate them by arbitrary engagement milestones. Preserve accessibility and navigation on narrow screens.
+
+## Intent-first architecture (approved 2026-11-26)
+
+The public site is a **router, not a table of contents**. A visitor arrives with one
+of three intentions and must reach the matching door in one tap:
+
+| Audience | Question they arrive with | Destination |
+|---|---|---|
+| Parent | "Is this school right for my child, and how do I apply?" | /admissions |
+| Student | "Help me pass WAEC, NECO or JAMB." | /learn |
+| Prospective family / curious | "What is the school actually like?" | /primary |
+
+Rules that follow from it:
+
+- **Home carries three doors and nothing else** below the hero. No section
+  duplicates a nav link; no page is reachable only through a dropdown.
+- **The navigation bar has three groups**: Schools (primary · secondary · school
+  life · school shop), Academy, and a persistent **Apply** button. Staff
+  publishing is deliberately absent from public navigation.
+- **Mobile uses a sheet**, not a horizontal bar. Six links in a 360px bar is how
+  a site starts to sprawl.
+- **Search is the depth mechanism inside the Academy.** `/learn` opens with the
+  question "What will you learn today?" and a search box; the exam tracks sit
+  below it. Directory trees are not built for content that is still growing.
+- **Every page must end with one next action.** A page that dead-ends is a
+  brochure, not a tool.
+- Maximum five cards above the fold. Home: one sentence per area. Section: one
+  line per item. Detail: the long copy.
