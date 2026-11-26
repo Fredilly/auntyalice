@@ -8,7 +8,7 @@ const json = (body: object, status: number) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
 export async function POST(request: Request) {
-  const actor = resolveActor(request);
+  const actor = await resolveActor(request);
   if (!actor) return json({ error: "Staff session required" }, 401);
   if (actor.role !== "teacher") return json({ error: "Only teachers can create lesson drafts." }, 403);
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
