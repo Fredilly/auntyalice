@@ -30,8 +30,11 @@ REVOKE ALL ON academy.syllabus_mappings   FROM academy_app_dev;
 
 GRANT SELECT ON academy.staff TO academy_app_dev;
 
-GRANT SELECT, INSERT   ON academy.lessons TO academy_app_dev;
-GRANT UPDATE (slug)    ON academy.lessons TO academy_app_dev;   -- never published_revision_id
+-- INSERT is column-scoped too: a new lesson may set identity and ownership only.
+-- published_revision_id and created_at are left to the server/function.
+GRANT INSERT (id, slug, owner_id) ON academy.lessons TO academy_app_dev;
+GRANT SELECT                      ON academy.lessons TO academy_app_dev;
+GRANT UPDATE (slug)               ON academy.lessons TO academy_app_dev;  -- never published_revision_id
 
 GRANT SELECT, INSERT   ON academy.revisions TO academy_app_dev; -- never UPDATE, never DELETE
 
@@ -49,8 +52,10 @@ BEGIN
   SELECT string_agg(name, ', ') INTO missing FROM (
     SELECT 'staff.select' AS name
       WHERE NOT has_table_privilege('academy_app_dev','academy.staff','SELECT')
-    UNION ALL SELECT 'lessons.insert'
-      WHERE NOT has_table_privilege('academy_app_dev','academy.lessons','INSERT')
+    UNION ALL SELECT 'lessons.insert.slug'
+      WHERE NOT has_column_privilege('academy_app_dev','academy.lessons','slug','INSERT')
+    UNION ALL SELECT 'lessons.insert.owner'
+      WHERE NOT has_column_privilege('academy_app_dev','academy.lessons','owner_id','INSERT')
     UNION ALL SELECT 'lessons.slug.update'
       WHERE NOT has_column_privilege('academy_app_dev','academy.lessons','slug','UPDATE')
     UNION ALL SELECT 'revisions.insert'
@@ -76,7 +81,9 @@ DO $$
 DECLARE leaked text;
 BEGIN
   SELECT string_agg(name, ', ') INTO leaked FROM (
-    SELECT 'lessons.published_revision_id UPDATE' AS name
+    SELECT 'lessons.published_revision_id INSERT' AS name
+      WHERE has_column_privilege('academy_app_dev','academy.lessons','published_revision_id','INSERT')
+    UNION ALL SELECT 'lessons.published_revision_id UPDATE'
       WHERE has_column_privilege('academy_app_dev','academy.lessons','published_revision_id','UPDATE')
     UNION ALL SELECT 'lessons table UPDATE'
       WHERE has_table_privilege('academy_app_dev','academy.lessons','UPDATE')
