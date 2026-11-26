@@ -41,6 +41,19 @@ export function readSessionActor(request) {
   return session.ok ? staffActor(session.payload) : null;
 }
 
+// A signed cookie proves prior authentication, not current authorization.
+export async function readCurrentSessionActor(request, repository = staffRepo) {
+  const session = readSessionActor(request);
+  if (!session) return null;
+  try {
+    const current = staffActor(await repository.findStaffBySubject(session.subject));
+    return current?.id === session.id && current.subject === session.subject &&
+      current.role === session.role ? current : null;
+  } catch {
+    return null;
+  }
+}
+
 export function requireRole(actor, allowedRoles) {
   return Boolean(actor && roles.includes(actor.role) && allowedRoles.includes(actor.role));
 }
