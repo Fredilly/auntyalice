@@ -18,7 +18,7 @@ interface StaffRepository {
   touchLastLogin(id: string): Promise<void>;
 }
 
-export function resolveActor(request: Request): StaffActor | null;
+export function resolveActor(request: Pick<Request, "headers">): StaffActor | null;
 export function requireRole(actor: StaffActor | null, allowedRoles: readonly StaffRole[]): boolean;
 export function login(request: Request, repository?: StaffRepository): Promise<Response>;
 export function logout(): Response;

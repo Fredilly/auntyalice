@@ -25,3 +25,13 @@ The local `feat/staff-auth-foundation` patch adds the staff login, logout and se
 Local evidence on Node 22.22.1. `npm run typecheck` and `node --test tests/staff-auth.test.mjs tests/publishing.test.mjs` exited 0, with seven staff auth cases and four publishing cases passing. An in-process check of the App Router handlers returned login 503 with the default repository, session lookup 401 without a cookie and 200 with a valid signed cookie, and logout 204 with a cookie deletion header. The sandbox denied the local HTTP listener. This patch remains uncommitted and has no preview or production deployment.
 
 Issue #7 remains open. The next integration step is to wire an isolated development staff adapter and verify runtime login, current staff permissions and revocation before connecting publishing operations.
+
+## Independent lesson review — issue #7, part C
+
+The uncommitted `feat/reviewer-flow` patch adds the reviewer queue, revision decisions, and the anonymous Academy lesson page for published revisions. The queue's **In review** section uses the existing publishing state `submitted`. Approved revisions stay discoverable in **Approved for publication**. The decision route checks the signed staff session, independent authorship and ownership, current revision, and the checklist or change reason.
+
+For local development, open `/staff/review?preview=1`, select **Comparing fractions**, expand the questions and approval checklist, approve, publish, then open the Academy lesson. Every fixture view labels the synthetic data. Restarting the development process resets the in-memory decisions. The regular repository still returns 503 without a database adapter.
+
+Local verification on Node 22.22.1 included typecheck and 19 passing test cases. An in-process Next.js route check returned 403 for teachers, 503 from the unconfigured decision endpoint, and 404 for the synthetic lesson before publication. After publication, the labelled Academy preview returned 200 for an anonymous request and the ordinary URL still returned 404. Chromium and loopback listeners were blocked by the sandbox, so browser interaction, mobile screenshots and transfer measurements remain pending. There is no part C commit, PR, CI run or deployment. GitHub main was at `3b9c854` with part B open in PR #32, so this patch uses the part B interfaces present in the worktree.
+
+Issue #7 remains open. The next integration step is to verify the staff and publication adapters against an isolated development database.
