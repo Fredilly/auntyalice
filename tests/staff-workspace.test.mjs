@@ -101,8 +101,8 @@ test("validates known exam tracks, the slug and distinct answer options", () => 
 test("lesson route modules import and call the session actor resolver", () => {
   for (const path of ["[id]", "video-preview"]) {
     const source = readFileSync(new URL(`../app/api/staff/lessons/${path}/route.ts`, import.meta.url), "utf8");
-    assert.match(source, /import\s*\{\s*readSessionActor\s*\}\s*from\s*["'][^"']+\/staff-auth\.mjs["']/);
-    assert.match(source, /readSessionActor\(request\)/);
+    assert.match(source, /import\s*\{\s*readCurrentSessionActor\s*\}\s*from\s*["'][^"']+\/staff-auth\.mjs["']/);
+    assert.match(source, /await\s+readCurrentSessionActor\(request\)/);
   }
 });
 
