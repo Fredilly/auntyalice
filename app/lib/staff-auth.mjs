@@ -91,7 +91,7 @@ export function logout() {
   });
 }
 
-export function me(request) {
-  const actor = readSessionActor(request);
+export async function me(request, repository = staffRepo) {
+  const actor = await readCurrentSessionActor(request, repository);
   return actor ? actorResponse(actor) : errorResponse(401, "Staff session required");
 }
