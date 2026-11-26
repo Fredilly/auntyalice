@@ -1,4 +1,4 @@
-name: Publishing policy tests
+name: Regression tests
 on:
   pull_request:
   push:
@@ -15,4 +15,5 @@ jobs:
           node-version: '22'
       # policy tests are pure node, but run them under the committed lockfile too
       - run: npm ci --no-audit --no-fund
-      - run: node --test tests/publishing.test.mjs
+      # every suite, not just publishing: auth, workspace, review flow, media, cache
+      - run: node --test tests/*.mjs
