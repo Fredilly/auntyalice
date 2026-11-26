@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Primary placeholder">
+  <rect width="800" height="600" fill="#FFF7F0"/>
+  <circle cx="624.0" cy="132.0" r="252.0" fill="#F26B0F" opacity="0.14"/><circle cx="176.0" cy="510.0" r="180.0" fill="#175B77" opacity="0.10"/>
+  <text x="48.0" y="192.0" font-family="Helvetica, Arial, sans-serif" font-size="33.0" fill="#175B77" letter-spacing="4.8">PLACEHOLDER</text>
+  <text x="48.0" y="276.0" font-family="Helvetica, Arial, sans-serif" font-size="63.0" font-weight="bold" fill="#141110" letter-spacing="-1">Primary</text>
+  <text x="48.0" y="336.00000000000006" font-family="Helvetica, Arial, sans-serif" font-size="25.200000000000003" fill="#655D55">Little learners, big possibilities</text>
+</svg>
