@@ -13,4 +13,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      # policy tests are pure node, but run them under the committed lockfile too
+      - run: npm ci --no-audit --no-fund
       - run: node --test tests/publishing.test.mjs
