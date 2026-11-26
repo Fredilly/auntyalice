@@ -7,3 +7,18 @@ Open: school levels/history, official contacts, fees, assets/consent, club/farm 
 
 ## 2026-11-25: progressive disclosure
 Owner approved simple-by-default, powerful-when-needed UX. Preserve the existing single deployment, separate product experiences and canonical content. Prioritize task-based navigation, contextual tools, anonymous optional resume and operational destinations only. No new infrastructure or premature portal exposure.
+
+## 2026-11-26 — Intent-first homepage, three-door navigation
+
+Decision: replace the scrolling homepage (schools, academy band, school life
+teaser) with a hero plus three intent doors, and collapse the navigation from
+four flat links to Schools · Academy · Apply, with a mobile sheet.
+
+Reason: each homepage section duplicated a nav link, so the page said the same
+thing twice and grew with every new section. A visitor with one intention had to
+read the whole page to find it. Search inside the Academy makes a deep directory
+unnecessary: content is found by asking, not by browsing a tree.
+
+Consequence: new sections hang from an existing door or they do not ship. The
+staff workspace stays outside public navigation. Any future fourth door requires
+a written reason in this file.
