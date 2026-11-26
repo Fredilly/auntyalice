@@ -1,7 +1,7 @@
 import "server-only";
 
 import { transition } from "../../../../lib/publishing.mjs";
-import { readSessionActor } from "../../../../lib/staff-auth.mjs";
+import { readCurrentSessionActor } from "../../../../lib/staff-auth.mjs";
 import { canEditLesson, staffLessons } from "../../../../lib/staff-lesson-repo";
 import { validateDraft } from "../../../../lib/staff-workspace.mjs";
 
@@ -9,7 +9,7 @@ const json = (body: object, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const actor = readSessionActor(request);
+  const actor = await readCurrentSessionActor(request);
   if (!actor) return json({ error: "Staff session required" }, 401);
 
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
