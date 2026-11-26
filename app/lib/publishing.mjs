@@ -6,6 +6,16 @@ const states = {
   published: {archived: "archived"},
 };
 const text = v => typeof v === "string" && v.trim().length > 0;
+export const reviewChecklist = Object.freeze({
+  accuracy: "Content is accurate",
+  answerKeys: "Answers and explanations are correct",
+  rights: "Media and content rights are cleared",
+  safeguarding: "Content meets safeguarding requirements",
+  accessibility: "Content is accessible",
+});
+export const isReviewComplete = approval =>
+  Object.keys(reviewChecklist).every(key => Object.hasOwn(approval ?? {}, key) && approval[key] === true);
+
 export function validateLessonContent(c) {
   const errors = [];
   if (!c || typeof c !== "object" || Array.isArray(c)) return ["Lesson content is required"];
@@ -31,7 +41,7 @@ export function transition({state, action, actor, ownerId, authorId, approval}) 
     if (actor.role !== "teacher" || actor.id !== ownerId || actor.id !== authorId) throw new Error("Owner teacher required");
   } else {
     if (!reviewer || actor.id === authorId || actor.id === ownerId) throw new Error("Independent reviewer required");
-    if (action === "approved" && !["accuracy","answerKeys","rights","safeguarding","accessibility"].every(k=>approval?.[k]===true)) throw new Error("Complete review checklist required");
+    if (action === "approved" && !isReviewComplete(approval)) throw new Error("Complete review checklist required");
   }
   return states[state][action];
 }
