@@ -78,12 +78,35 @@ try {
   check("academy schema created", tables >= 7, `${tables} tables`);
 
   // 2. role + grants, exactly as db/production/10_app_role.sql
-  const grants = readFileSync("db/production/10_app_role.sql", "utf8")
-    .split("\n").filter((l) => /^\s*(GRANT|ALTER ROLE)/i.test(l)).join("\n");
+  //
+  // Split on semicolons rather than filtering lines: a grant can wrap across lines
+  // ("GRANT INSERT (...)\n  ON academy.syllabus_mappings"), and a line filter silently
+  // truncated it, producing "syntax error at end of input" half way through setup.
+  const source = readFileSync("db/production/10_app_role.sql", "utf8")
+    .replace(/^\s*--.*$/gm, "")
+    .replace(/^\\set.*$/gm, "");
+  const statements = source.split(";")
+    .map((s) => s.replace(/\s+/g, " ").trim())
+    .filter((s) => /^(grant|alter role|revoke)\b/i.test(s));
+
+  // an unscoped GRANT is the failure mode we are guarding against;
+  // ALTER ROLE legitimately has no TO clause
+  const incomplete = statements.filter((s) => /^grant\b/i.test(s) && !/\bto\b/i.test(s));
+  if (incomplete.length || statements.length < 10) {
+    throw new Error(`grant extraction looks wrong: ${statements.length} statements, ${incomplete.length} incomplete`);
+  }
+
   await admin.query(`drop role if exists academy_app`);
   await admin.query(`create role academy_app login password '${PASSWORD}' nosuperuser nocreatedb nocreaterole nobypassrls`);
   await admin.query("grant usage on schema academy to academy_app");
-  await admin.query(grants);
+  for (const statement of statements) {
+    try {
+      await admin.query(statement);
+    } catch (error) {
+      throw new Error(`grant failed: ${statement.slice(0, 60)}… — ${error.message}`);
+    }
+  }
+  console.log(`applied ${statements.length} grant statements`);
 
   const priv = (await admin.query(`
     select
