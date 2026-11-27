@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AcademyAction from "../../components/academy-action";
+import { IconBook, IconTarget } from "../../components/icons";
 import Revision from "../../components/revision";
 import { listPublishedQuestions } from "../../lib/public-lessons.mjs";
 
@@ -23,30 +25,27 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
 
   return (
     <main id="main" className="shell">
-      <section className="page-intro">
-        <p className="eyebrow">TARGETED REVISION</p>
-        <h1>{wanted.length ? "Your weak topics." : "Drill a topic."}</h1>
+      <section className="av-intro">
+        <p className="av-kicker">Practice</p>
+        <h1>{wanted.length ? "Topic practice" : "Practice"}</h1>
         <p>
-          One question at a time, with the explanation before you can move on. That is the
-          whole method — you cannot skip past the part that teaches.
+          Choose a topic and learn from the explanation after each answer.
         </p>
       </section>
 
       {!wanted.length && (
-        <section className="section">
-          <div className="picker">
-            <p className="eyebrow">CHOOSE A TOPIC</p>
-            <div className="picker-row">
-              {topicsAvailable.map(([slug, title]) => (
-                <Link key={slug} className="text-link" href={`/learn/revision?topics=${encodeURIComponent(slug)}`}>
-                  {title}
-                </Link>
-              ))}
-              <Link className="text-link" href="/learn/revision?topics=all">Everything</Link>
-            </div>
-            <p className="muted">
-              Don&apos;t know where you are weak? <Link className="text-link" href="/learn/diagnostic">Take the diagnostic</Link>
-            </p>
+        <section className="av-section" aria-labelledby="topics-heading">
+          <h2 id="topics-heading">Choose a topic</h2>
+          <div className="av-action-list">
+            {all.length > 0 ? (
+              <AcademyAction href="/learn/revision?topics=all" title="All topics" description="Practise across available topics" icon={<IconBook />} />
+            ) : (
+              <p className="av-note" role="status">No practice questions published yet.</p>
+            )}
+            {topicsAvailable.map(([slug, title]) => (
+              <AcademyAction key={slug} href={`/learn/revision?topics=${encodeURIComponent(slug)}`} title={title} icon={<IconBook />} />
+            ))}
+            <AcademyAction href="/learn/diagnostic" title="Find your weak topics" description="Take a diagnostic assessment" icon={<IconTarget />} />
           </div>
         </section>
       )}
