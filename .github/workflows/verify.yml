@@ -34,9 +34,49 @@ jobs:
           done
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/invalid)" = 404
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/waec/invalid)" = 404
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/lesson/invalid)" = 404
+          # Without a database the lesson route must say "unavailable" rather than
+          # claim the lesson does not exist; with a database it must be a real 404.
+          if curl -s "http://localhost:8787/learn/lesson/invalid" | grep -q "temporarily unavailable"; then
+            echo "lesson route reported database unavailability (no DATABASE_URL in CI)"
+          else
+            test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/lesson/invalid)" = 404
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: resolved-lockfile
           path: package-lock.json
+
+  rehearsal:
+    # Disposable PostgreSQL proves the production setup end to end, twice in a row.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: rehearsal
+          POSTGRES_DB: rehearsal
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Rehearsal - first run
+        env:
+          REHEARSAL_CONFIRM: throwaway
+          REHEARSAL_DATABASE_URL: postgres://postgres:rehearsal@localhost:5432/rehearsal
+        run: node scripts/rehearse-production-setup.mjs
+      - name: Rehearsal - second run (rerun safety)
+        env:
+          REHEARSAL_CONFIRM: throwaway
+          REHEARSAL_DATABASE_URL: postgres://postgres:rehearsal@localhost:5432/rehearsal
+        run: node scripts/rehearse-production-setup.mjs
