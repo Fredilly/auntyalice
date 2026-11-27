@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { readProgress, recordVisit } from "../lib/progress";
+import { EMPTY_STATE, readProgress, recordVisit, summarise, type ProgressState } from "../lib/progress";
 import { saveLessonsForOffline, savedLessonCount } from "../lib/offline";
 import { IconArrow, IconBook, IconCheck, IconClock, IconCloud, IconDoc, IconPlay, IconPulse, IconTarget } from "./icons";
 
@@ -10,7 +10,10 @@ export type DashLesson = { slug: string; title: string; questions: number; exam:
 type Props = { lessons: DashLesson[] };
 
 export default function LearningDashboard({ lessons }: Props) {
-  const [state, setState] = useState(readProgress);
+  // Server and first client paint both use the stable empty state; real progress is
+  // loaded in an effect. Reading localStorage during render is what breaks hydration.
+  const [state, setState] = useState<ProgressState>(EMPTY_STATE);
+  const [hydrated, setHydrated] = useState(false);
   const [online, setOnline] = useState(true);
   const [saved, setSaved] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -20,6 +23,7 @@ export default function LearningDashboard({ lessons }: Props) {
   useEffect(() => {
     const refresh = () => setState(readProgress());
     refresh();
+    setHydrated(true);
     savedLessonCount(slugs).then(setSaved).catch(() => {});
     const on = () => setOnline(navigator.onLine);
     on();
@@ -41,13 +45,22 @@ export default function LearningDashboard({ lessons }: Props) {
   }, [slugs.join(",")]);
 
   const last = state.lastSlug ? lessons.find((l) => l.slug === state.lastSlug) : undefined;
-  const started = lessons.filter((l) => state.lessons[l.slug]);
-  const answered = Object.values(state.lessons).reduce((n, p) => n + p.answered, 0);
-  const correct = Object.values(state.lessons).reduce((n, p) => n + p.correct, 0);
+
+  // unique questions only: every count below goes through summarise(), which keys on
+  // question id, so repeated drills can never inflate the totals
+  const totals = lessons.reduce(
+    (acc, lesson) => {
+      const s = summarise(state.lessons[lesson.slug]);
+      return { answered: acc.answered + s.answered, correct: acc.correct + s.correct };
+    },
+    { answered: 0, correct: 0 },
+  );
+  const startedCount = lessons.filter((l) => summarise(state.lessons[l.slug]).answered > 0).length;
+  const accuracy = totals.answered ? Math.round((totals.correct / totals.answered) * 100) : 0;
 
   return (
     <div className="dash">
-      {!online && (
+      {hydrated && !online && (
         <div className="dash-offline" role="status">
           <IconCloud className="dash-ico" /> You are offline. {saved > 0 ? `${saved} lesson${saved === 1 ? "" : "s"} saved on this device still open.` : "Nothing saved yet — connect once to save lessons."}
         </div>
@@ -59,7 +72,7 @@ export default function LearningDashboard({ lessons }: Props) {
         {last ? (
           <>
             <h2>{last.title}</h2>
-            <p className="dash-muted">{last.exam} · {state.lessons[last.slug]?.answered ?? 0} of {last.questions} {last.questions === 1 ? "question" : "questions"} attempted</p>
+            <p className="dash-muted">{last.exam} · {Math.min(summarise(state.lessons[last.slug]).answered, last.questions)} of {last.questions} {last.questions === 1 ? "question" : "questions"} answered</p>
             <Link className="dash-btn" href={`/learn/lesson/${last.slug}`} onClick={() => recordVisit(last.slug)}>
               Resume lesson <IconArrow className="dash-ico" />
             </Link>
@@ -75,9 +88,9 @@ export default function LearningDashboard({ lessons }: Props) {
 
       {/* real local numbers only */}
       <section className="dash-stats" aria-label="Your progress on this device">
-        <div><strong>{answered}</strong><span>questions answered</span></div>
-        <div><strong>{answered ? Math.round((correct / answered) * 100) : 0}%</strong><span>correct</span></div>
-        <div><strong>{started.length}/{lessons.length}</strong><span>lessons started</span></div>
+        <div><strong>{totals.answered}</strong><span>questions answered</span></div>
+        <div><strong>{accuracy}%</strong><span>correct</span></div>
+        <div><strong>{startedCount}/{lessons.length}</strong><span>lessons started</span></div>
       </section>
 
       {/* tools */}
@@ -108,8 +121,8 @@ export default function LearningDashboard({ lessons }: Props) {
 
         <ul className="lesson-list">
           {lessons.map((lesson) => {
-            const p = state.lessons[lesson.slug];
-            const done = p ? Math.min(p.answered, lesson.questions) : 0;
+            const s = summarise(state.lessons[lesson.slug]);
+            const done = Math.min(s.answered, lesson.questions);
             const pct = lesson.questions ? Math.round((done / lesson.questions) * 100) : 0;
             return (
               <li key={lesson.slug}>
@@ -121,7 +134,7 @@ export default function LearningDashboard({ lessons }: Props) {
                     <span className="lesson-title">{lesson.title}</span>
                     <span className="lesson-meta">
                       {lesson.exam} · {lesson.questions} {lesson.questions === 1 ? "question" : "questions"}
-                      {p ? ` · ${done}/${lesson.questions} done` : " · not started"}
+                      {s.answered > 0 ? ` · ${done}/${lesson.questions} done` : " · not started"}
                     </span>
                     <span className="lesson-bar"><span style={{ width: `${pct}%` }} /></span>
                   </span>
