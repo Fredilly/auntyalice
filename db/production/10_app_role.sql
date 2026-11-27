@@ -58,6 +58,11 @@ GRANT INSERT (id, lesson_id, version, author_id, content) ON academy.revisions T
 GRANT INSERT (revision_id, exam, syllabus_edition, objective_reference, source_url)
   ON academy.syllabus_mappings TO academy_app;
 
+-- Publishing runs through advance_review(); 002 revokes it from PUBLIC, so the app
+-- role needs EXECUTE explicitly. Without this, review and publication both fail with
+-- 42501 permission denied for function advance_review.
+GRANT EXECUTE ON FUNCTION academy.advance_review(text,uuid,text,text,jsonb) TO academy_app;
+
 DO $$
 DECLARE seq text; missing text;
 BEGIN
@@ -71,6 +76,8 @@ BEGIN
     UNION ALL SELECT 'lessons.update_slug' WHERE NOT has_column_privilege('academy_app','academy.lessons','slug','UPDATE')
     UNION ALL SELECT 'revisions.insert' WHERE NOT has_column_privilege('academy_app','academy.revisions','content','INSERT')
     UNION ALL SELECT 'public_lessons.select' WHERE NOT has_table_privilege('academy_app','academy.public_lessons','SELECT')
+    UNION ALL SELECT 'advance_review.execute'
+      WHERE NOT has_function_privilege('academy_app','academy.advance_review(text,uuid,text,text,jsonb)','EXECUTE')
     -- negative checks: these must all be false
     UNION ALL SELECT 'MUST_NOT update published_revision_id'
       WHERE has_column_privilege('academy_app','academy.lessons','published_revision_id','UPDATE')
