@@ -42,10 +42,10 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
                   {title}
                 </Link>
               ))}
-              <Link className="text-link" href="/learn/revision?topics=all">Everything ↗</Link>
+              <Link className="text-link" href="/learn/revision?topics=all">Everything</Link>
             </div>
             <p className="muted">
-              Don&apos;t know where you are weak? <Link className="text-link" href="/learn/diagnostic">Take the diagnostic ↗</Link>
+              Don&apos;t know where you are weak? <Link className="text-link" href="/learn/diagnostic">Take the diagnostic</Link>
             </p>
           </div>
         </section>
@@ -58,7 +58,7 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
       ) : wanted.length > 0 ? (
         <section className="section">
           <div className="proposed-banner">
-            No published questions for that topic yet. <Link className="text-link" href="/learn/revision">Choose another ↗</Link>
+            No published questions for that topic yet. <Link className="text-link" href="/learn/revision">Choose another</Link>
           </div>
         </section>
       ) : null}
