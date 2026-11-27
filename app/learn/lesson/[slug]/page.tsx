@@ -37,7 +37,7 @@ export default async function LessonPage({ params }: {
           <p className="preview-notice">Development sample · awaiting academic review. Not verified against any official exam syllabus.</p>
         )}
         {sample && <p>{sample.objective}</p>}
-        <a className="text-link" href="#practice-title">Jump to practice ↓</a>
+        <a className="text-link" href={Array.isArray(published?.blocks) ? "#practice-heading" : "#practice-title"}>Jump to practice ↓</a>
       </section>
       <LessonVideo id={lesson.videoId ?? undefined} />
       {Array.isArray((published as { blocks?: unknown })?.blocks) ? null : (
