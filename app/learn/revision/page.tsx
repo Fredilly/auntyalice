@@ -15,7 +15,9 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
   const all = await listPublishedQuestions();
 
   const wanted = (topics ?? "").split(",").map((t) => t.trim()).filter(Boolean);
-  const questions = wanted.length ? all.filter((q) => wanted.includes(q.slug)) : all;
+  // no topic selected means no drill: revision must wait for an explicit choice
+  const selected = wanted.includes("all") ? all : all.filter((q) => wanted.includes(q.slug));
+  const ready = wanted.length > 0 && selected.length > 0;
 
   const topicsAvailable = [...new Map(all.map((q) => [q.slug, q.lesson])).entries()];
 
@@ -49,9 +51,17 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
         </section>
       )}
 
-      <section className="section">
-        <Revision questions={wanted.includes("all") ? all : questions} />
-      </section>
+      {ready ? (
+        <section className="section">
+          <Revision questions={selected} />
+        </section>
+      ) : wanted.length > 0 ? (
+        <section className="section">
+          <div className="proposed-banner">
+            No published questions for that topic yet. <Link className="text-link" href="/learn/revision">Choose another ↗</Link>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
