@@ -59,3 +59,10 @@ The publishing workflow now proposes running every top-level Node regression sui
 Cookie-based workspace, lesson mutation, video preview, review decision and session lookup now revalidate the staff mapping and deny stale or unavailable identities. Added synthetic regression coverage; CI and authenticated preview evidence pending. No database grants changed.
 
 2026-11-26: PR #43 prior head e0411b6 passed Publishing policy tests (45804454300) and Verify Workers (45804454202). Independent review removed the review helper's stale-cookie fallback and added a signed-cookie denial regression. New CI pending; no live preview or grant changes.
+
+## 2026-11-26 — M3 begins: one complete subject
+- M2 recorded as functionally accepted; revocation remains a mandatory staff-onboarding gate (owner-run SQL in ROADMAP.md).
+- Published four WAEC Mathematics lessons through the real pipeline (insert → advance_review submitted → approved → published):
+  `laws-of-indices`, `percentages-and-profit`, plus the earlier `simultaneous-equations` and `m2-acceptance`.
+- Content is original, syllabus-tagged, with worked examples, five explained questions per lesson and a stated commonest-mistake line.
+- Verified: `/learn/lesson/laws-of-indices` 200 with notes and practice; `/learn/waec/mathematics` 200.

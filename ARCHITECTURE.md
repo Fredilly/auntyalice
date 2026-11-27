@@ -8,3 +8,19 @@ Planned data: schools, sections, users, memberships, roles, staff profiles, page
 Commerce: catalogue and verified WhatsApp enquiries first; verified merchant links later. School Ledger candidate source of stock truth, audit interface before integration; verified webhooks, idempotency, bank reconciliation, refunds and order/stock state machine. No live transactions without approval.
 
 Testing: strict application typecheck, generated Wrangler runtime declarations, skipLibCheck for DOM/Workers declaration conflicts, Next/OpenNext build, workerd route tests, browser/mobile/accessibility/performance, permissions and publication leakage. Public-only versioned offline cache; test logout/stale cache/update. Monitor errors, uptime and privacy-preserving metrics.
+
+## Past-paper ingestion (2026-11-26)
+
+Two tables, one guard, one loader:
+
+- `academy.past_papers` — body, year, subject, paper, source_url, source_name,
+  `rights_status` (VERIFIED_REDISTRIBUTABLE | LINK_ONLY | UNVERIFIED), licence note,
+  checked date. Unique on (body, year, subject, paper).
+- `academy.past_questions` — question number, topic, syllabus reference, body text,
+  options, answer key **and answer_source**, our explanation, diagram URL,
+  verification state, mapped `lesson_slug`, `duplicate_of` for dedupe.
+- `academy.past_question_guard` — a trigger, not a convention: text is refused unless
+  the paper is redistributable, and CHECKED requires an explanation.
+- `scripts/ingest-past-papers.mjs` — manifest in, refuses unattributed material,
+  quarantines unverified rights, prints a coverage table.
+- `academy.past_coverage` — the view that answers "how many papers do we actually have".

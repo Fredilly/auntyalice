@@ -11,3 +11,61 @@ Discovery checklist: official name/levels/history, logo, address, contacts/Whats
 
 ## Progressive disclosure acceptance
 For public UX changes, check a first-time prospective parent's admissions path and a learner's exam-to-lesson path at 360px without instructions or mandatory onboarding. Check direct subject and lesson entry, returning learner resume, clearing recent history, storage-disabled behavior, keyboard/focus and 320/390px then wider layouts. Record actual evidence; do not mark acceptance complete solely on implementation.
+
+## M2 — functionally accepted (2026-11-26)
+
+Accepted: draft → submit → independent review → publish → anonymous read, verified
+against Neon with two separate legitimate identities, including draft isolation
+(404 before publication, 200 after).
+
+**Mandatory staff-onboarding gate:** permission *revocation* is unverified and must
+be proven before any real staff account is issued. The app role holds SELECT only on
+`academy.staff`, so revocation is an owner action:
+
+    UPDATE academy.staff SET active = false WHERE auth_subject = '<staff subject>';
+
+Expected: `/api/staff/me` and `/staff/review` both refuse while the flag is false.
+Do not onboard real teachers until this has been demonstrated.
+
+## M2 acceptance evidence — 2026-11-26
+
+Run against the Neon development branch with two **separate legitimate identities**
+(teacher `dev:teacher@`, reviewer `dev:reviewer@`), each establishing its own
+session through `/api/staff/session`. No forged cookies, no auth bypass, no
+weakened checks.
+
+| Step | Result |
+|---|---|
+| Teacher session established | 200, role `teacher` |
+| Create draft | 201, lesson + revision UUIDs |
+| Draft isolation before publish | `/learn/lesson/m2-acceptance` → **404** |
+| Submit for review | 200, new revision id |
+| Reviewer session established | 200, role `reviewer`, distinct staff id |
+| Reviewer queue page | 200 |
+| Approve (five-item checklist) | 200, `state: approved` |
+| Publish | 200, `state: published` |
+| Anonymous student read | 200, lesson + practice question rendered |
+| Teacher cookie still valid alongside reviewer | 200 |
+
+Outstanding: **permission revocation** is not verified, and cannot be exercised
+from this side. The upgrade was attempted and failed with `42501 permission denied
+for table staff` — the application role holds SELECT only on `academy.staff`, so it
+cannot deactivate anyone. That is correct privilege separation, not a bug: revocation
+is an owner-level action.
+
+To close it, the owner runs one statement and I assert the result:
+
+    UPDATE academy.staff SET active = false WHERE auth_subject = 'dev:reviewer@auntyalice.test';
+
+Expected: `/api/staff/me` and `/staff/review` both refuse while the flag is false.
+
+## M3 — Academy depth (in progress)
+
+- [x] One complete subject started: WAEC Mathematics, four published lessons with worked examples, common mistakes and explained questions.
+- [x] Past-paper schema, rights guard, ingestion loader and coverage view.
+- [x] Legitimate sources catalogued (`docs/PAST_PAPER_SOURCES.md`): official platforms exist and are linkable — WAEC e-Learning, JAMB IBASS (syllabus + CBT), NECO ɪɡzam. Openly licensed material: Siyavula (CC BY for unbranded editions, CC BY-ND for branded), Kolibri channels.
+- [x] `db/seeds/past_papers_link_only.json` — five LINK_ONLY records ready for the loader.
+- [ ] **Owner decision:** redistribution rights. Official platforms solve *access* by linking; hosting five years of paper text still needs a licence. Two commercial candidates worth approaching (SmarTest, CBT Past Questions) — a licensing conversation, not a scrape.
+- [ ] Timed CBT mode over original exam-style questions (no rights dependency, can proceed).
+- [ ] Diagnostic test, topic-level progress, targeted revision.
+- [ ] English expansion after Mathematics.

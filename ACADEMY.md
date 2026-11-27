@@ -11,3 +11,37 @@ Original practice, objective/difficulty tags and worked explanations. Past paper
 
 ## Incremental learning experience
 Default journey: choose exam, subject, lesson, then notes, examples and practice. Search and direct subject/lesson entry remain available. Present a clear practice jump without hiding notes, and retain explanations and local answer state. Offer resume only after an actual lesson visit, with clear local-history removal and no identity. No forced onboarding, account or arbitrary unlocking; preview notices must remain visible.
+
+## Past examinations (M3, 2026-11-26)
+
+**Rights position, recorded before any ingestion.** WAEC past papers are not freely
+redistributable: Ghana's Deputy Minister of Education stated publicly that a single
+publisher holds reproduction rights. Nigerian JAMB/NECO material is likewise
+copyright of the examining body; the many PDF "repositories" online are unlicensed
+reposts, not sources.
+
+Therefore the Academy ships three distinct kinds of question and never mixes them:
+
+| Kind | Where it lives | Labelling |
+|---|---|---|
+| Original practice questions | Inside a lesson (`questions`) | Never called past questions |
+| Linked past papers | `academy.past_papers` with `rights_status = LINK_ONLY` | Metadata + outbound link only |
+| Licensed past questions | `academy.past_questions` with `VERIFIED_REDISTRIBUTABLE` | Attributed to body, year, paper, question number |
+
+A database trigger (`academy.past_question_guard`) refuses to store question text
+on any paper whose rights are not verified, and refuses to mark a question CHECKED
+without a step-by-step explanation. `scripts/ingest-past-papers.mjs` will not
+upgrade a rights status, invent a question or guess an answer key.
+
+Coverage is tracked by `academy.past_coverage` (body × subject × year, with checked
+/ unverified / disputed / mapped counts) so "five years of past papers" is a number
+we can read, not a claim we make.
+
+### Student modes
+
+1. **Practice by topic** — questions filtered by `topic` / `syllabus_ref`.
+2. **Complete past paper** — all questions for one paper, in order.
+3. **Timed mock** — a paper under time pressure, answers withheld until submission.
+
+Modes 2 and 3 depend on redistributable text; where only LINK_ONLY exists, the
+student is linked out to the official source instead.
