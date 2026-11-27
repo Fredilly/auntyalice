@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { recordAnswers } from "../lib/progress";
 
 type Option = string;
-export type MockQuestion = { id: string; prompt: string; options: Option[]; answer: number; explanation: string; lesson: string };
+export type MockQuestion = { id: string; prompt: string; options: Option[]; answer: number; explanation: string; lesson: string; slug?: string };
 
 /**
  * Timed mock examination.
@@ -18,7 +19,7 @@ export default function TimedMock({ questions, minutes, title }: { questions: Mo
 
   useEffect(() => {
     if (!started || submitted) return;
-    if (remaining <= 0) { setSubmitted(true); return; }
+    if (remaining <= 0) { submit(); return; }
     const t = setTimeout(() => setRemaining((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [started, remaining, submitted]);
@@ -27,6 +28,19 @@ export default function TimedMock({ questions, minutes, title }: { questions: Mo
     () => questions.filter((q) => answers[q.id] === q.answer).length,
     [answers, questions],
   );
+
+  const submit = () => {
+    // group by lesson so progress lands on the right topic, keyed by question id
+    const byLesson = new Map<string, { id: string; correct: boolean }[]>();
+    for (const q of questions) {
+      const slug = q.slug ?? "unknown";
+      const list = byLesson.get(slug) ?? [];
+      list.push({ id: q.id, correct: answers[q.id] === q.answer });
+      byLesson.set(slug, list);
+    }
+    for (const [slug, results] of byLesson) if (slug !== "unknown") recordAnswers(slug, results);
+    setSubmitted(true);
+  };
 
   if (!questions.length) {
     return <p className="mock-empty">No practice questions are published for this exam yet.</p>;
@@ -97,7 +111,7 @@ export default function TimedMock({ questions, minutes, title }: { questions: Mo
         <button className="outline-cta" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))}>← Back</button>
         {index < questions.length - 1
           ? <button className="cta" onClick={() => setIndex((i) => i + 1)}>Next →</button>
-          : <button className="cta" onClick={() => setSubmitted(true)}>Submit</button>}
+          : <button className="cta" onClick={submit}>Submit</button>}
       </div>
       <p className="muted mock-progress">{Object.keys(answers).length} of {questions.length} answered</p>
     </div>

@@ -1,5 +1,14 @@
 import { Pool } from "pg";
 
+/**
+ * Acceptance-test artefacts live in the same table as real lessons. They must never
+ * appear in the public catalogue: a student seeing "M2 Acceptance Lesson" destroys
+ * trust in the whole Academy. db/migrations/004 removes them properly; this filter is
+ * the belt to that migration's braces.
+ */
+const FIXTURE_SLUGS = new Set(["m2-acceptance", "isolation-probe", "submit-practice", "smoke"]);
+const isFixture = (slug) => FIXTURE_SLUGS.has(slug) || /^(m2-|isolation-|test-|fixture-)/.test(slug);
+
 let pool;
 function db() {
   if (pool) return pool;
@@ -15,7 +24,7 @@ export async function listPublishedLessons() {
   if (!p) return [];
   try {
     const { rows } = await p.query("select slug, content from academy.public_lessons order by slug");
-    return rows.map((row) => {
+    return rows.filter((row) => !isFixture(row.slug)).map((row) => {
       const content = row.content ?? {};
       const exams = Array.isArray(content.examTracks) && content.examTracks.length ? content.examTracks : [];
       return {
@@ -40,6 +49,7 @@ export async function listPublishedQuestions() {
   );
   const out = [];
   for (const row of rows) {
+    if (isFixture(row.slug)) continue;
     const content = row.content ?? {};
     for (const q of content.questions ?? []) {
       if (!q?.id || typeof q.prompt !== "string" || !Array.isArray(q.options)) continue;

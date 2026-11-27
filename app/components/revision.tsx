@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { recordAnswers } from "../lib/progress";
 import type { MockQuestion } from "../lib/public-lessons.mjs";
 
 /**
@@ -13,6 +14,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
   const [chosen, setChosen] = useState<number | null>(null);
   const [right, setRight] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [results, setResults] = useState<{ slug: string; id: string; correct: boolean }[]>([]);
 
   if (!questions.length) {
     return <p className="muted">Nothing to revise yet — choose a topic with published questions.</p>;
@@ -29,7 +31,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
             : "Re-run this drill until it is clean, then try the mock."}
         </p>
         <div className="mock-actions">
-          <button className="outline-cta" onClick={() => { setIndex(0); setChosen(null); setRight(0); setFinished(false); }}>
+          <button className="outline-cta" onClick={() => { setIndex(0); setChosen(null); setRight(0); setResults([]); setFinished(false); }}>
             Drill again
           </button>
           <Link className="cta" href="/learn/mock">Timed mock ↗</Link>
@@ -56,7 +58,11 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
           return (
             <label key={i} className={`mock-option${chosen === i ? " chosen" : ""}${state}`}>
               <input type="radio" name={q.id} checked={chosen === i} disabled={answered}
-                onChange={() => { setChosen(i); if (i === q.answer) setRight((n) => n + 1); }} />
+                onChange={() => {
+                  setChosen(i);
+                  if (i === q.answer) setRight((n) => n + 1);
+                  setResults((prev) => [...prev, { slug: q.slug, id: q.id, correct: i === q.answer }]);
+                }} />
               <span>{option}</span>
             </label>
           );
@@ -75,7 +81,16 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
         <span className="muted">{answered ? "Read the explanation before moving on" : "Pick an answer"}</span>
         <button className="cta" disabled={!answered}
           onClick={() => {
-            if (index + 1 >= questions.length) setFinished(true);
+            if (index + 1 >= questions.length) {
+              const byLesson = new Map<string, { id: string; correct: boolean }[]>();
+              for (const r of results) {
+                const list = byLesson.get(r.slug) ?? [];
+                list.push({ id: r.id, correct: r.correct });
+                byLesson.set(r.slug, list);
+              }
+              for (const [slug, list] of byLesson) if (slug !== "unknown") recordAnswers(slug, list);
+              setFinished(true);
+            }
             else { setIndex((i) => i + 1); setChosen(null); }
           }}>
           {index + 1 >= questions.length ? "Finish" : "Next →"}

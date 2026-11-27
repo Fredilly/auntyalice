@@ -72,6 +72,17 @@ async function goto(path) {
   await sleep(500);
 }
 
+/** Poll for text instead of trusting a fixed sleep — dev builds compile lazily. */
+async function waitForText(re, timeoutMs = 15000) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const text = await evaluate("document.body.innerText");
+    if (re.test(text)) return text;
+    await sleep(400);
+  }
+  return await evaluate("document.body.innerText");
+}
+
 async function shot(name) {
   const { data } = await send("Page.captureScreenshot", { format: "png" });
   const path = `/tmp/journey-${name}.png`;
@@ -80,7 +91,9 @@ async function shot(name) {
 }
 
 const out = [];
+let failures = 0;
 const check = (label, ok, detail = "") => {
+  if (!ok) failures++;
   out.push(`${ok ? "PASS" : "FAIL"} ${label}${detail ? " — " + detail : ""}`);
   return ok;
 };
@@ -102,10 +115,22 @@ try {
     ["Diagnostic", "Revision", "Timed mock", "Past questions"].every((t) => dashText.includes(t)));
   await shot("1-dashboard");
 
+  // save for offline from the dashboard, then confirm the control reports it
+  await evaluate(`(() => { const b = [...document.querySelectorAll('button')].find(x => /save for offline/i.test(x.textContent)); if (b) b.click(); })()`);
+  // saving four lessons plus their styles takes a few seconds on a cold cache
+  let savedLabel = "missing";
+  for (let i = 0; i < 30; i++) {
+    await sleep(1000);
+    savedLabel = await evaluate("(() => { const b = [...document.querySelectorAll('button')].find(x => /saved offline|save for offline|saving/i.test(x.textContent)); return b ? b.textContent.trim() : 'missing'; })()");
+    if (/all saved offline/i.test(savedLabel)) break;
+  }
+  check("save for offline reports saved state", /all saved offline/i.test(savedLabel), savedLabel);
+
   // 2. open a lesson from the list
   await evaluate(`(() => { const a = [...document.querySelectorAll('a.lesson-row')].find(x => x.getAttribute('href').includes('laws-of-indices')); a.click(); })()`);
-  await sleep(2000);
-  const lessonText = await evaluate("document.body.innerText");
+  // wait for text that only exists on the lesson page — the dashboard also says
+  // "Laws of Indices", so matching the title alone passes before navigation happens
+  const lessonText = await waitForText(/Multiplication/i);
   check("lesson opens from dashboard", /Laws of Indices/i.test(lessonText));
   check("lesson shows notes", /Multiplication|index/i.test(lessonText));
   await shot("2-lesson");
@@ -129,13 +154,29 @@ try {
   const offlineText = await evaluate("document.body.innerText");
   const stillThere = /Laws of Indices/i.test(offlineText);
   check("lesson reloads with the network disabled", stillThere, stillThere ? "" : offlineText.slice(0, 80));
+
+  // an offline page that lost its stylesheet is not offline support
+  const styled = await evaluate(`(() => {
+    const h1 = document.querySelector('h1');
+    if (!h1) return { ok: false, reason: 'no h1' };
+    const size = parseFloat(getComputedStyle(h1).fontSize);
+    const sheets = document.styleSheets.length;
+    return { ok: size > 22 && sheets > 0, size, sheets };
+  })()`);
+  check("offline page keeps its styles", styled?.ok === true, JSON.stringify(styled));
   await shot("4-offline");
 
   await send("Network.emulateNetworkConditions", {
     offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1,
   });
+} catch (error) {
+  failures++;
+  out.push(`FAIL harness crashed — ${error?.message ?? error}`);
 } finally {
   console.log(out.join("\n"));
+  console.log(failures === 0 ? "JOURNEY OK" : `JOURNEY FAILED (${failures})`);
+  // a failing journey must fail CI, not print politely and exit 0
+  process.exitCode = failures === 0 ? 0 : 1;
   ws.close();
   chrome.kill("SIGKILL");
 }
