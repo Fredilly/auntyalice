@@ -149,7 +149,7 @@ export default function LessonExperience({ slug, blocks }: { slug: string; block
                   <p className="lx-verdict">{chosen === q.answer ? "Correct" : "Not quite"}</p>
                   <Prose text={q.explanation} />
                   <button className="lx-next" onClick={advance}>
-                    {index + 1 >= practice.questions.length ? "Finish" : "Next question →"}
+                    {index + 1 >= practice.questions.length ? "Finish" : "Next question"}
                   </button>
                 </div>
               )}
@@ -164,7 +164,7 @@ export default function LessonExperience({ slug, blocks }: { slug: string; block
               </p>
               <div className="lx-done-actions">
                 <button className="lx-next" onClick={() => { setIndex(0); setChosen(null); setResults([]); }}>Practise again</button>
-                <Link className="lx-link" href="/learn/mock">Timed mock →</Link>
+                <Link className="lx-link" href="/learn/mock">Timed mock</Link>
               </div>
             </div>
           )}
