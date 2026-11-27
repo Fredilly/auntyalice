@@ -1,42 +1,33 @@
 import { NextResponse } from "next/server";
 import { withDatabase } from "../../../lib/db.mjs";
 
-/**
- * Narrow diagnostic for P0 (#7). The Worker's lesson route fails intermittently while
- * the same query succeeds against Neon from outside, and Cloudflare logs are not
- * reachable from the engineering loop. This exposes the *shape* of the failure so it can
- * be read over HTTP:
- *
- *   {"ok":true,"rows":1,"ms":42}
- *   {"ok":false,"stage":"connect|query","code":"ENOTFOUND","message":"..."}
- *
- * Deliberately excluded: the connection string, host, user, database name, and any
- * parameter. Message is truncated to 120 characters. Nothing here is cached.
- */
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const safeCodes = new Set(["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EPIPE", "ERR_TLS_CERT_ALTNAME_INVALID", "UNABLE_TO_VERIFY_LEAF_SIGNATURE", "CERT_HAS_EXPIRED", "SELF_SIGNED_CERT_IN_CHAIN", "database_not_configured"]);
+
 export async function GET() {
   const started = Date.now();
+  let stage = "connect";
   try {
     const rows = await withDatabase(async (db) => {
-      const result = await db.query("select 1 as ok");
-      return result.rowCount;
+      const client = await db.connect();
+      try {
+        stage = "query";
+        const result = await client.query("select 1 as ok");
+        stage = "cleanup";
+        return result.rowCount;
+      } finally {
+        client.release();
+      }
     });
-    return NextResponse.json(
-      { ok: true, rows, ms: Date.now() - started },
-      { headers: { "cache-control": "no-store" } },
-    );
+    return NextResponse.json({ ok: true, rows, ms: Date.now() - started },
+      { headers: { "cache-control": "no-store" } });
   } catch (caught) {
-    const error = caught as { code?: unknown; message?: unknown };
-    const code = typeof error.code === "string" ? error.code : null;
-    const stage = /connect|timeout|socket|getaddrinfo|ENOTFOUND|ECONN/i.test(String(error?.message ?? ""))
-      ? "connect"
-      : "query";
-    const message = String(error?.message ?? "unknown").replace(/\s+/g, " ").slice(0, 120);
-    return NextResponse.json(
-      { ok: false, stage, code, message, ms: Date.now() - started },
-      { status: 503, headers: { "cache-control": "no-store" } },
-    );
+    const error = caught as { code?: unknown } | null;
+    const raw = error?.code;
+    const code = typeof raw === "string" && (safeCodes.has(raw) || /^[0-9A-Z]{5}$/.test(raw)) ? raw : null;
+    return NextResponse.json({ ok: false, stage, code, ms: Date.now() - started },
+      { status: 503, headers: { "cache-control": "no-store" } });
   }
 }
