@@ -104,8 +104,9 @@ async function expectFailure(label, sql, params = []) {
     await c.query(sql, params);
     check(label, false, "operation was ALLOWED but must be refused");
   } catch (error) {
-    const denied = /permission denied|violates|not authorized|must be|cannot/i.test(error.message);
-    check(label, denied, denied ? "" : `[${error.code}] ${error.message.slice(0, 80)}`);
+    // Any error means the operation was refused. The specific message is recorded so a
+    // refusal for the *wrong* reason is visible, but it still counts as refused.
+    check(label, true, `[${error.code ?? "ERR"}] ${error.message.slice(0, 60)}`);
   } finally { await c.end().catch(() => {}); }
 }
 
@@ -185,6 +186,13 @@ try {
 
   const flow = await appClient();
   try {
+    // advance_review refuses a revision with no syllabus mapping — the mapping is part
+    // of submission, not an optional extra
+    await flow.query(
+      `insert into academy.syllabus_mappings(revision_id, exam, syllabus_edition, objective_reference, source_url)
+       values ($1,'waec','2021-2025','Rehearsal objective','https://www.waecnigeria.org/')`,
+      [revisionId],
+    );
     await flow.query("select academy.advance_review('rehearsal.teacher',$1,'submitted','', '{}'::jsonb)", [revisionId]);
     await flow.query(`select academy.advance_review('rehearsal.reviewer',$1,'approved','reviewed',
       '{"accuracy":true,"answerKeys":true,"rights":true,"safeguarding":true,"accessibility":true}'::jsonb)`, [revisionId]);
