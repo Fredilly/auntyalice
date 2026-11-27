@@ -1,0 +1,20 @@
+{
+  "_comment": "LINK_ONLY catalogue. Metadata and official URLs only — no question text. Ingest with: node scripts/ingest-past-papers.mjs db/seeds/past_papers_link_only.json",
+  "papers": [
+    { "body": "WAEC", "year": 2026, "subject": "Mathematics", "paper": "Paper 1",
+      "source_name": "WAEC e-Learning", "source_url": "https://waeconline.org.ng/E-Learning/Mathematics/mathsmain.html",
+      "rights_status": "LINK_ONLY", "licence_note": "Official WAEC student resource; link only, no hosting", "questions": [] },
+    { "body": "WAEC", "year": 2025, "subject": "Mathematics", "paper": "Paper 1",
+      "source_name": "WAEC e-Learning", "source_url": "https://waeconline.org.ng/E-Learning/Mathematics/mathsmain.html",
+      "rights_status": "LINK_ONLY", "licence_note": "Official WAEC student resource; link only, no hosting", "questions": [] },
+    { "body": "JAMB", "year": 2026, "subject": "Mathematics", "paper": "Paper 1",
+      "source_name": "JAMB IBASS", "source_url": "https://ibass.jamb.gov.ng/cbt",
+      "rights_status": "LINK_ONLY", "licence_note": "Official JAMB syllabus and CBT guidance; link only", "questions": [] },
+    { "body": "JAMB", "year": 2026, "subject": "Use of English", "paper": "Paper 1",
+      "source_name": "JAMB IBASS", "source_url": "https://ibass.jamb.gov.ng/cbt",
+      "rights_status": "LINK_ONLY", "licence_note": "Official JAMB syllabus and CBT guidance; link only", "questions": [] },
+    { "body": "NECO", "year": 2026, "subject": "Mathematics", "paper": "Paper 1",
+      "source_name": "NECO Igzam", "source_url": "https://practice-exam.neco.gov.ng/",
+      "rights_status": "LINK_ONLY", "licence_note": "Official NECO practice platform; link only", "questions": [] }
+  ]
+}

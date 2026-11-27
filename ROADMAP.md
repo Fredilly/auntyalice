@@ -63,6 +63,9 @@ Expected: `/api/staff/me` and `/staff/review` both refuse while the flag is fals
 
 - [x] One complete subject started: WAEC Mathematics, four published lessons with worked examples, common mistakes and explained questions.
 - [x] Past-paper schema, rights guard, ingestion loader and coverage view.
-- [ ] **Blocked on owner decision:** licensing. No redistributable source identified for WAEC/JAMB/NECO/BECE/Common Entrance. Until a licence or written permission exists, papers stay LINK_ONLY and no question text is stored. Five years of authentic papers cannot be delivered without this.
+- [x] Legitimate sources catalogued (`docs/PAST_PAPER_SOURCES.md`): official platforms exist and are linkable — WAEC e-Learning, JAMB IBASS (syllabus + CBT), NECO ɪɡzam. Openly licensed material: Siyavula (CC BY for unbranded editions, CC BY-ND for branded), Kolibri channels.
+- [x] `db/seeds/past_papers_link_only.json` — five LINK_ONLY records ready for the loader.
+- [ ] **Owner decision:** redistribution rights. Official platforms solve *access* by linking; hosting five years of paper text still needs a licence. Two commercial candidates worth approaching (SmarTest, CBT Past Questions) — a licensing conversation, not a scrape.
+- [ ] Timed CBT mode over original exam-style questions (no rights dependency, can proceed).
 - [ ] Diagnostic test, topic-level progress, targeted revision.
 - [ ] English expansion after Mathematics.
