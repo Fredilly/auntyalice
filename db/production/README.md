@@ -57,10 +57,19 @@ and the fixture purge remains pending approval for the development branch.
 ## 2. Application role (owner connection)
 
 ```bash
-psql "$PROD_OWNER_URL" -v ON_ERROR_STOP=1 \
-  -v app_password="'REPLACE_WITH_A_LONG_RANDOM_PASSWORD'" \
-  -f db/production/10_app_role.sql
+export ACADEMY_APP_PASSWORD="$(openssl rand -base64 33)"
+psql "$PROD_OWNER_URL" -v ON_ERROR_STOP=1 -f db/production/10_app_role.sql
 ```
+
+The password is read from the environment, never from `-v`: a command-line value lands
+in shell history and is visible in `ps`. On Neon the project owner is not a superuser,
+so the script **asserts** role attributes rather than writing them — `ALTER ROLE …
+NOSUPERUSER` fails there even when the value is already correct. Nothing in the file
+drops or alters a schema object.
+
+**If the password has been exposed**, regenerate and re-run the same file: it alters the
+existing role rather than recreating it, so privileges survive. Update the Worker secret
+in the same sitting — the ALTER invalidates the old password immediately.
 
 Creates `academy_app` — no `SUPERUSER`, `CREATEDB`, `CREATEROLE`, `BYPASSRLS` — and
 grants exactly what the app needs. Publication stays a pointer move through
