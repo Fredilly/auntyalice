@@ -45,8 +45,14 @@ const isNeon = target.host.endsWith(".neon.tech");
 if (isNeon) {
   if (!/^ep-/.test(target.endpoint)) fail(`unrecognised Neon endpoint: ${target.host}`);
   if (devEndpoint && target.endpoint === devEndpoint) fail(`endpoint ${target.endpoint} is the development branch`);
+  // The allowlist is mandatory for anything outside localhost. Without it, any Neon
+  // endpoint — including production — would pass on the strength of looking like an
+  // endpoint. An operator must name the rehearsal endpoint explicitly.
   const allowed = (process.env.REHEARSAL_ENDPOINTS || "").split(",").map((s) => s.trim()).filter(Boolean);
-  if (allowed.length && !allowed.includes(target.endpoint)) fail(`endpoint ${target.endpoint} is not allow-listed`);
+  if (allowed.length === 0) {
+    fail(`REHEARSAL_ENDPOINTS is required for Neon targets; add ${target.endpoint} to allow it`);
+  }
+  if (!allowed.includes(target.endpoint)) fail(`endpoint ${target.endpoint} is not allow-listed`);
 } else if (!/^(localhost|127\.0\.0\.1|db|postgres)$/.test(target.host)) {
   fail(`refusing non-local host ${target.host}; allow-list it with REHEARSAL_ENDPOINTS`);
 }
@@ -104,9 +110,13 @@ async function expectFailure(label, sql, params = []) {
     await c.query(sql, params);
     check(label, false, "operation was ALLOWED but must be refused");
   } catch (error) {
-    // Any error means the operation was refused. The specific message is recorded so a
-    // refusal for the *wrong* reason is visible, but it still counts as refused.
-    check(label, true, `[${error.code ?? "ERR"}] ${error.message.slice(0, 60)}`);
+    // A control is only proven by a *refusal*. An unexpected error — a missing table, a
+    // syntax error, a broken fixture — means the test never reached the control, so it
+    // must fail loudly rather than pass as "refused".
+    const refusal =
+      ["42501", "P0001", "23514", "23503", "23502"].includes(error.code) ||
+      /permission denied|not authorized|independent reviewer required|syllabus mapping required|must be|violates/i.test(error.message);
+    check(label, refusal, `[${error.code ?? "ERR"}] ${error.message.slice(0, 70)}`);
   } finally { await c.end().catch(() => {}); }
 }
 
