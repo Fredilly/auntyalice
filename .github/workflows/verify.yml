@@ -34,7 +34,13 @@ jobs:
           done
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/invalid)" = 404
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/waec/invalid)" = 404
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/lesson/invalid)" = 404
+          # Without a database the lesson route must say "unavailable" rather than
+          # claim the lesson does not exist; with a database it must be a real 404.
+          if curl -s "http://localhost:8787/learn/lesson/invalid" | grep -q "temporarily unavailable"; then
+            echo "lesson route reported database unavailability (no DATABASE_URL in CI)"
+          else
+            test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/learn/lesson/invalid)" = 404
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
