@@ -41,6 +41,7 @@ export interface ReviewQueueLesson extends LessonSummary {
 export interface PublishedLesson extends LessonDraft {
   state: "published";
   version: number;
+  blocks?: unknown[];
 }
 
 export interface PublicLessonRepository {
@@ -114,6 +115,10 @@ function toDraft(content: Partial<Omit<LessonDraft, "slug" | "notes">> & { notes
     examTracks: content.examTracks ?? mappedExams,
     videoId: content.videoId ?? null,
     questions: content.questions ?? [],
+    // V2 structured lessons travel as blocks; older revisions simply have none.
+    ...(Array.isArray((content as { blocks?: unknown }).blocks)
+      ? { blocks: (content as { blocks: unknown[] }).blocks }
+      : {}),
   };
 }
 

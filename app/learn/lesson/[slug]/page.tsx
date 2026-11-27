@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import LessonVideo from "../../../components/lesson-video";
+import LessonExperience, { type Block } from "../../../components/lesson-experience";
 import Practice from "../../../components/practice";
 import { RememberLesson } from "../../../components/recent-lesson";
 import { exams } from "../../../lib/catalog";
@@ -39,11 +40,13 @@ export default async function LessonPage({ params }: {
         <a className="text-link" href="#practice-title">Jump to practice ↓</a>
       </section>
       <LessonVideo id={lesson.videoId ?? undefined} />
-      <section className="section">
-        <h2 className="display">{published ? "Lesson notes" : "Understand the idea."}</h2>
-        {published && <p className="published-lesson-notes">{published.notes}</p>}
-        {sample?.notes.map(note => <p key={note}>{note}</p>)}
-      </section>
+      {Array.isArray((published as { blocks?: unknown })?.blocks) ? null : (
+        <section className="section">
+          <h2 className="display">{published ? "Lesson notes" : "Understand the idea."}</h2>
+          {published && <p className="published-lesson-notes">{published.notes}</p>}
+          {sample?.notes.map(note => <p key={note}>{note}</p>)}
+        </section>
+      )}
       {sample && (
         <section className="section">
           <h2 className="display">Worked examples.</h2>
@@ -55,7 +58,11 @@ export default async function LessonPage({ params }: {
           ))}
         </section>
       )}
-      <Practice key={lessonKey} questions={lesson.questions} lessonKey={lessonKey} showAnswers={Boolean(published)} />
+      {Array.isArray((published as { blocks?: unknown })?.blocks) ? (
+        <LessonExperience slug={slug} blocks={(published as unknown as { blocks: Block[] }).blocks} />
+      ) : (
+        <Practice key={lessonKey} questions={lesson.questions} lessonKey={lessonKey} showAnswers={Boolean(published)} />
+      )}
       <Link className="text-link" href="/learn">Explore other subjects ↗</Link>
     </main>
   );
