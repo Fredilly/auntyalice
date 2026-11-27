@@ -58,3 +58,7 @@ flow caught it — the PR said green because an *earlier* commit was green.
 git fetch origin
 git merge-base --is-ancestor <quoted-sha> origin/main || echo "MERGE MISSED CONTENT"
 ```
+
+## Owner communication (mandatory)
+
+Execution first. Keep routine owner-facing updates to at most five lines. Independently verify actual evidence; never simulate execution or claim unperformed work. Lead reviews with MERGE, HOLD, or FIX, followed by the exact next action. Include direct links and concise visual cues when relevant. No repeated explanations, intermediate reports without a blocker, or side quests. Escalate material risks and required approvals concisely; retain detailed test evidence in PRs or issue records.
