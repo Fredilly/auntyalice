@@ -58,3 +58,11 @@ To close it, the owner runs one statement and I assert the result:
     UPDATE academy.staff SET active = false WHERE auth_subject = 'dev:reviewer@auntyalice.test';
 
 Expected: `/api/staff/me` and `/staff/review` both refuse while the flag is false.
+
+## M3 — Academy depth (in progress)
+
+- [x] One complete subject started: WAEC Mathematics, four published lessons with worked examples, common mistakes and explained questions.
+- [x] Past-paper schema, rights guard, ingestion loader and coverage view.
+- [ ] **Blocked on owner decision:** licensing. No redistributable source identified for WAEC/JAMB/NECO/BECE/Common Entrance. Until a licence or written permission exists, papers stay LINK_ONLY and no question text is stored. Five years of authentic papers cannot be delivered without this.
+- [ ] Diagnostic test, topic-level progress, targeted revision.
+- [ ] English expansion after Mathematics.
