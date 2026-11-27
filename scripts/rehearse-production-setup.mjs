@@ -36,8 +36,41 @@ const check = (label, ok, detail = "") => {
   console.log(`${ok ? "PASS" : "FAIL"} ${label}${detail ? " — " + detail : ""}`);
 };
 
+if (process.env.REHEARSAL_CONFIRM !== "throwaway") {
+  console.error("refusing to run without REHEARSAL_CONFIRM=throwaway — this script DROPS the academy schema");
+  process.exit(1);
+}
+
 const admin = new pg.Client({ connectionString: URL_, ssl: { rejectUnauthorized: true } });
 await admin.connect();
+
+// --- identity checks: prove we are on a disposable database before touching anything
+const identity = (await admin.query(`
+  select current_database() as db, current_user as usr,
+         (select rolsuper from pg_roles where rolname = current_user) as is_super,
+         (select rolcreaterole from pg_roles where rolname = current_user) as can_create_role
+`)).rows[0];
+
+if (!identity.is_super && !identity.can_create_role) {
+  console.error(`refusing: ${identity.usr} cannot create roles — use an owner/creator connection`);
+  process.exit(1);
+}
+if (/neondb/.test(identity.db) && /\bprod/i.test(process.env.REHEARSAL_LABEL || "")) {
+  console.error("refusing: database looks like production");
+  process.exit(1);
+}
+console.log(`rehearsing on ${identity.db} as ${identity.usr}`);
+
+// --- rerun safety: clear anything a previous, interrupted run left behind.
+// A failed statement leaves the session in an aborted transaction, so roll back first.
+const cleanLeftovers = async () => {
+  await admin.query("rollback").catch(() => {});
+  await admin.query("drop schema if exists academy cascade").catch(() => {});
+  // a role that owns privileges cannot be dropped until its grants are released
+  await admin.query("drop owned by academy_app").catch(() => {});
+  await admin.query("drop role if exists academy_app").catch(() => {});
+};
+await cleanLeftovers();
 
 const appUrl = new URL(URL_);
 appUrl.username = "academy_app";
@@ -53,8 +86,6 @@ async function expectFailure(label, sql, params = []) {
   const c = await appClient();
   try {
     await c.query(sql, params);
-    c.release?.();
-    await c.end();
     check(label, false, "operation was ALLOWED but must be refused");
   } catch (error) {
     const denied = /permission denied|violates|not authorized|must be/i.test(error.message);
@@ -96,7 +127,6 @@ try {
     throw new Error(`grant extraction looks wrong: ${statements.length} statements, ${incomplete.length} incomplete`);
   }
 
-  await admin.query(`drop role if exists academy_app`);
   await admin.query(`create role academy_app login password '${PASSWORD}' nosuperuser nocreatedb nocreaterole nobypassrls`);
   await admin.query("grant usage on schema academy to academy_app");
   for (const statement of statements) {
@@ -176,9 +206,10 @@ try {
   failures++;
   console.log("FAIL rehearsal crashed —", error.message);
 } finally {
-  // 6. teardown
-  await admin.query("drop schema if exists academy cascade").catch(() => {});
-  await admin.query("drop role if exists academy_app").catch(() => {});
+  // 6. teardown — roll back any aborted transaction first, otherwise every DROP in
+  // this session fails with "current transaction is aborted"
+  await admin.query("rollback").catch(() => {});
+  await cleanLeftovers();
   const gone = (await admin.query(
     "select count(*)::int n from information_schema.schemata where schema_name='academy'",
   )).rows[0].n;
