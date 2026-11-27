@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import AcademyAction from "../../components/academy-action";
+import { IconDoc } from "../../components/icons";
 import TimedMock from "../../components/timed-mock";
 import { listPublishedQuestions } from "../../lib/public-lessons.mjs";
 
@@ -23,9 +24,7 @@ export default async function Mock() {
           Original practice questions written for the Academy, under exam timing. Not a past paper —
           answers are hidden until you submit, and every one is explained afterwards.
         </p>
-        <p className="muted">
-          Looking for the real thing? <Link className="text-link" href="/learn/past-papers">Official past-paper sources ↗</Link>
-        </p>
+        <AcademyAction href="/learn/past-papers" title="Official past-paper sources" description="Browse official examination resources" icon={<IconDoc />} />
       </section>
       <section className="section">
         <TimedMock questions={mock} minutes={20} title="Alice Academy mock" />
