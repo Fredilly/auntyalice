@@ -25,7 +25,7 @@ export default async function ReviewLessonPage({ params }: {
 
   return (
     <>
-      <a className="staff-back" href="/staff/review">← Review queue</a>
+      <a className="staff-back" href="/staff/review"> Review queue</a>
       <h1>{draft.title}</h1>
       <p>{tracks.join(", ") || "No exam tracks selected"}</p>
       <div className="staff-fields">

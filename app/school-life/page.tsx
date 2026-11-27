@@ -121,7 +121,7 @@ export default function SchoolLife() {
             A parent or guardian confirms club membership with the school office. Supervision ratios and the
             current club list are confirmed at the start of each term — they are not published here until verified.
           </p>
-          <Link className="text-link" href="/admissions">Ask about clubs ↗</Link>
+          <Link className="text-link" href="/admissions">Ask about clubs</Link>
         </div>
       </section>
     </main>

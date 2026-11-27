@@ -103,7 +103,7 @@ export default function EnquiryForm({ whatsapp }: { whatsapp?: string }) {
       <div className="enquiry-actions">
         {href ? (
           <a className="cta" href={href} target="_blank" rel="noreferrer">
-            Send on WhatsApp ↗
+            Send on WhatsApp
           </a>
         ) : (
           <button type="button" className="cta" onClick={copy}>

@@ -34,7 +34,7 @@ export default function PastPapers() {
               <p className="eyebrow">{item.body}</p>
               <h2>{item.what}</h2>
               <p className="muted">{item.note}</p>
-              <a className="text-link" href={item.href} target="_blank" rel="noreferrer">Open official source ↗</a>
+              <a className="text-link" href={item.href} target="_blank" rel="noreferrer">Open official source</a>
             </article>
           ))}
         </div>
@@ -56,7 +56,7 @@ export default function PastPapers() {
             Our own questions in the exam&apos;s style, timed, with every answer explained. Clearly not a past
             paper — and useful from the day it ships.
           </p>
-          <a className="cta" href="/learn/mock">Start a mock ↗</a>
+          <a className="cta" href="/learn/mock">Start a mock</a>
         </div>
       </section>
     </main>

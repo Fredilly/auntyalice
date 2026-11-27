@@ -27,3 +27,16 @@ Never more than three on a page; never a door that leads to another list of door
 arrays. The sheet traps focus on open, closes on Escape and on route change,
 locks body scroll, and returns focus to the trigger. It is the only place where
 the full section list appears.
+
+## Navigation and layout components
+
+| Component | Responsibility |
+|---|---|
+| `academy-nav.tsx` | Fixed bottom bar. Four items, shared icons, active state from the pathname. |
+| `icons.tsx` | The only icon source. Add new glyphs here, never inline ad-hoc SVG in a page. |
+| `math.tsx` | MathML renderer for lesson maths. No KaTeX, no web font. |
+| `lesson-experience.tsx` | V2 lesson: objectives, sections, worked examples, mistakes, practice. |
+
+**Layout contract:** any route rendering `academy-nav` must reserve bottom space —
+`body:has(.av-nav) main { padding-bottom: calc(92px + env(safe-area-inset-bottom)) }`.
+The lesson route previously had 40px and the bar covered the final paragraph.

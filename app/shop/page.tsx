@@ -64,7 +64,7 @@ export default function Shop() {
               Ask about a specific title, size or kit and the school office will confirm whether it is held
               and what it costs. Nothing is ordered or paid for through this website.
             </p>
-            <Link className="cta" href="/admissions">Ask the school office ↗</Link>
+            <Link className="cta" href="/admissions">Ask the school office</Link>
           </div>
           <ul className="shop-list">
             <li>Class book lists are issued at the start of each term.</li>

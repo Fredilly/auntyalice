@@ -42,3 +42,24 @@ Rules that follow from it:
   brochure, not a tool.
 - Maximum five cards above the fold. Home: one sentence per area. Section: one
   line per item. Detail: the long copy.
+
+## Design system (Material-inspired, flat)
+
+**Icons.** One shared set in `app/components/icons.tsx` — 24px grid, `currentColor`,
+1.7 stroke, no icon font, no emoji. Navigation, cards and CTAs all draw from it.
+Text glyphs like `↗ → ←` are banned in UI copy; they render inconsistently across
+Android versions and read as decoration rather than affordance.
+
+**Navigation.** Flat bottom bar, four destinations that exist: Home, Study, Practice,
+Progress. No elevation shadow, one hairline top border, 48px minimum touch target per
+item, sentence-case labels, `aria-current="page"` on the active route. Destinations
+must resolve to a real screen — placeholder links ("Sample lesson") are not allowed.
+
+**Spacing.** Compact rhythm on mobile: 20px between lesson blocks, 16px card padding,
+14px radii. Density is a feature on a 360px screen with limited data.
+
+**Buttons.** One primary style (solid orange, 48px high, 12px radius), one secondary
+(outline), one text link. No more than one primary per screen region.
+
+**Safe areas.** The bottom bar pads with `env(safe-area-inset-bottom)`; every Academy
+page reserves `92px + inset` at the bottom so content is never hidden behind it.
