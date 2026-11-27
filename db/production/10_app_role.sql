@@ -36,7 +36,10 @@
 
 BEGIN;
 
-SELECT set_config('academy.app_password', :'app_password', true);
+-- \gset captures the result into a psql variable instead of printing it: a bare
+-- SELECT would echo the password to the terminal and into any captured CI log.
+SELECT set_config('academy.app_password', :'app_password', true) AS session_password \gset
+\unset session_password
 
 DO $$
 DECLARE pw text := current_setting('academy.app_password');
