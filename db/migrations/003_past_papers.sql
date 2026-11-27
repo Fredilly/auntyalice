@@ -74,6 +74,13 @@ BEGIN
   IF NEW.verification = 'CHECKED' AND NEW.explanation IS NULL THEN
     RAISE EXCEPTION 'A checked question must carry a step-by-step explanation';
   END IF;
+  -- an answer nobody can trace is not a verified answer
+  IF NEW.verification = 'CHECKED' AND (NEW.answer_key IS NULL OR length(btrim(NEW.answer_key)) = 0) THEN
+    RAISE EXCEPTION 'A checked question must carry an answer key';
+  END IF;
+  IF NEW.verification = 'CHECKED' AND (NEW.answer_source IS NULL OR length(btrim(NEW.answer_source)) = 0) THEN
+    RAISE EXCEPTION 'A checked question must say where its answer came from (answer_source)';
+  END IF;
   RETURN NEW;
 END $$ LANGUAGE plpgsql;
 

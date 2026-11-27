@@ -43,14 +43,27 @@ for (const paper of manifest.papers ?? []) {
     `insert into academy.past_papers(body, year, subject, paper, title, source_url, source_name,
        rights_status, licence_note, checked_at)
      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,current_date)
-     on conflict (body, year, subject, paper) do update set source_url=excluded.source_url,
-       rights_status=excluded.rights_status, licence_note=excluded.licence_note, checked_at=current_date
+     -- rights_status is deliberately NOT updated here. Re-running a manifest must never
+     -- promote a paper from LINK_ONLY to VERIFIED_REDISTRIBUTABLE; only an owner may
+     -- grant rights, and the trigger on past_questions depends on that being true.
+     on conflict (body, year, subject, paper) do update set
+       source_url = excluded.source_url,
+       checked_at = current_date,
+       licence_note = COALESCE(academy.past_papers.licence_note, excluded.licence_note)
      returning id, rights_status`,
     [paper.body, paper.year, paper.subject, paper.paper ?? "Paper 1", paper.title ?? null,
      paper.source_url, paper.source_name, paper.rights_status, paper.licence_note ?? null],
   );
   const paperId = rows[0].id;
   papers++;
+
+  if (rows[0].rights_status !== paper.rights_status) {
+    console.warn(
+      "  rights not changed:", paper.body, paper.subject, paper.year,
+      "- stored as", rows[0].rights_status, "while manifest asked for", paper.rights_status,
+      "(only an owner may change rights)",
+    );
+  }
 
   if (rows[0].rights_status === "UNVERIFIED") {
     quarantined += (paper.questions ?? []).length;
@@ -61,9 +74,15 @@ for (const paper of manifest.papers ?? []) {
   for (const q of paper.questions ?? []) {
     if (!Number.isInteger(q.question_no)) continue;
     const storeText = rows[0].rights_status === "VERIFIED_REDISTRIBUTABLE";
-    if (q.verification === "CHECKED" && !q.explanation) {
-      console.error("  skip q" + q.question_no + ": marked CHECKED without an explanation");
-      continue;
+    if (q.verification === "CHECKED") {
+      const gaps = [];
+      if (!q.explanation) gaps.push("explanation");
+      if (!q.answer_key) gaps.push("answer_key");
+      if (!q.answer_source) gaps.push("answer_source");
+      if (gaps.length) {
+        console.error("  skip q" + q.question_no + ": CHECKED but missing " + gaps.join(", "));
+        continue;
+      }
     }
     try {
       await c.query(
