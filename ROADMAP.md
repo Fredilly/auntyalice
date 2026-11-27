@@ -12,6 +12,21 @@ Discovery checklist: official name/levels/history, logo, address, contacts/Whats
 ## Progressive disclosure acceptance
 For public UX changes, check a first-time prospective parent's admissions path and a learner's exam-to-lesson path at 360px without instructions or mandatory onboarding. Check direct subject and lesson entry, returning learner resume, clearing recent history, storage-disabled behavior, keyboard/focus and 320/390px then wider layouts. Record actual evidence; do not mark acceptance complete solely on implementation.
 
+## M2 — functionally accepted (2026-11-26)
+
+Accepted: draft → submit → independent review → publish → anonymous read, verified
+against Neon with two separate legitimate identities, including draft isolation
+(404 before publication, 200 after).
+
+**Mandatory staff-onboarding gate:** permission *revocation* is unverified and must
+be proven before any real staff account is issued. The app role holds SELECT only on
+`academy.staff`, so revocation is an owner action:
+
+    UPDATE academy.staff SET active = false WHERE auth_subject = '<staff subject>';
+
+Expected: `/api/staff/me` and `/staff/review` both refuse while the flag is false.
+Do not onboard real teachers until this has been demonstrated.
+
 ## M2 acceptance evidence — 2026-11-26
 
 Run against the Neon development branch with two **separate legitimate identities**
