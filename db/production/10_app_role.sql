@@ -60,11 +60,11 @@ DECLARE bad text;
 BEGIN
   SELECT string_agg(attr, ', ') INTO bad FROM (
     SELECT 'SUPERUSER'       AS attr WHERE (SELECT rolsuper      FROM pg_roles WHERE rolname='academy_app')
-    UNION ALL SELECT 'CREATEDB'     WHERE (SELECT rolcreatedb   FROM pg_roles WHERE rolname='academy_app')
-    UNION ALL SELECT 'CREATEROLE'   WHERE (SELECT rolcreaterole FROM pg_roles WHERE rolname='academy_app')
-    UNION ALL SELECT 'BYPASSRLS'    WHERE (SELECT rolbypassrls  FROM pg_roles WHERE rolname='academy_app')
-    UNION ALL SELECT 'REPLICATION'  WHERE (SELECT rolreplication FROM pg_roles WHERE rolname='academy_app')
-    UNION ALL SELECT 'NOT LOGIN'    WHERE NOT (SELECT rolcanlogin FROM pg_roles WHERE rolname='academy_app')
+    UNION ALL SELECT 'CREATEDB' AS name WHERE (SELECT rolcreatedb   FROM pg_roles WHERE rolname='academy_app')
+    UNION ALL SELECT 'CREATEROLE' AS name WHERE (SELECT rolcreaterole FROM pg_roles WHERE rolname='academy_app')
+    UNION ALL SELECT 'BYPASSRLS' AS name WHERE (SELECT rolbypassrls  FROM pg_roles WHERE rolname='academy_app')
+    UNION ALL SELECT 'REPLICATION' AS name WHERE (SELECT rolreplication FROM pg_roles WHERE rolname='academy_app')
+    UNION ALL SELECT 'NOT LOGIN' AS name WHERE NOT (SELECT rolcanlogin FROM pg_roles WHERE rolname='academy_app')
   ) t;
   IF bad IS NOT NULL THEN
     RAISE EXCEPTION 'academy_app has forbidden attributes: %', bad;
@@ -99,25 +99,18 @@ BEGIN
   IF seq IS NOT NULL THEN EXECUTE format('GRANT USAGE, SELECT ON SEQUENCE %s TO academy_app', seq); END IF;
 
   SELECT string_agg(name, ', ') INTO missing FROM (
-    SELECT 'staff.select' WHERE NOT has_table_privilege('academy_app','academy.staff','SELECT')
-    UNION ALL SELECT 'lessons.insert' WHERE NOT has_column_privilege('academy_app','academy.lessons','slug','INSERT')
-    UNION ALL SELECT 'lessons.update_slug' WHERE NOT has_column_privilege('academy_app','academy.lessons','slug','UPDATE')
-    UNION ALL SELECT 'revisions.insert' WHERE NOT has_column_privilege('academy_app','academy.revisions','content','INSERT')
-    UNION ALL SELECT 'public_lessons.select' WHERE NOT has_table_privilege('academy_app','academy.public_lessons','SELECT')
-    UNION ALL SELECT 'advance_review.execute'
-      WHERE NOT has_function_privilege('academy_app','academy.advance_review(text,uuid,text,text,jsonb)','EXECUTE')
-    UNION ALL SELECT 'MUST_NOT update published_revision_id'
-      WHERE has_column_privilege('academy_app','academy.lessons','published_revision_id','UPDATE')
-    UNION ALL SELECT 'MUST_NOT insert published_revision_id'
-      WHERE has_column_privilege('academy_app','academy.lessons','published_revision_id','INSERT')
-    UNION ALL SELECT 'MUST_NOT delete lessons'
-      WHERE has_table_privilege('academy_app','academy.lessons','DELETE')
-    UNION ALL SELECT 'MUST_NOT update revisions'
-      WHERE has_column_privilege('academy_app','academy.revisions','content','UPDATE')
-    UNION ALL SELECT 'MUST_NOT delete syllabus_mappings'
-      WHERE has_table_privilege('academy_app','academy.syllabus_mappings','DELETE')
-    UNION ALL SELECT 'MUST_NOT insert review_events'
-      WHERE has_table_privilege('academy_app','academy.review_events','INSERT')
+    SELECT 'staff.select' AS name WHERE NOT has_table_privilege('academy_app','academy.staff','SELECT')
+    UNION ALL SELECT 'lessons.insert' AS name WHERE NOT has_column_privilege('academy_app','academy.lessons','slug','INSERT')
+    UNION ALL SELECT 'lessons.update_slug' AS name WHERE NOT has_column_privilege('academy_app','academy.lessons','slug','UPDATE')
+    UNION ALL SELECT 'revisions.insert' AS name WHERE NOT has_column_privilege('academy_app','academy.revisions','content','INSERT')
+    UNION ALL SELECT 'public_lessons.select' AS name WHERE NOT has_table_privilege('academy_app','academy.public_lessons','SELECT')
+    UNION ALL SELECT 'advance_review.execute' AS name WHERE NOT has_function_privilege('academy_app','academy.advance_review(text,uuid,text,text,jsonb)','EXECUTE')
+    UNION ALL SELECT 'MUST_NOT update published_revision_id' AS name WHERE has_column_privilege('academy_app','academy.lessons','published_revision_id','UPDATE')
+    UNION ALL SELECT 'MUST_NOT insert published_revision_id' AS name WHERE has_column_privilege('academy_app','academy.lessons','published_revision_id','INSERT')
+    UNION ALL SELECT 'MUST_NOT delete lessons' AS name WHERE has_table_privilege('academy_app','academy.lessons','DELETE')
+    UNION ALL SELECT 'MUST_NOT update revisions' AS name WHERE has_column_privilege('academy_app','academy.revisions','content','UPDATE')
+    UNION ALL SELECT 'MUST_NOT delete syllabus_mappings' AS name WHERE has_table_privilege('academy_app','academy.syllabus_mappings','DELETE')
+    UNION ALL SELECT 'MUST_NOT insert review_events' AS name WHERE has_table_privilege('academy_app','academy.review_events','INSERT')
   ) t;
   IF missing IS NOT NULL THEN
     RAISE EXCEPTION 'production privilege check failed: %', missing;
