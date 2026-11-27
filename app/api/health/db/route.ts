@@ -27,8 +27,9 @@ export async function GET() {
       { ok: true, rows, ms: Date.now() - started },
       { headers: { "cache-control": "no-store" } },
     );
-  } catch (error) {
-    const code = typeof error?.code === "string" ? error.code : null;
+  } catch (caught) {
+    const error = caught as { code?: unknown; message?: unknown };
+    const code = typeof error.code === "string" ? error.code : null;
     const stage = /connect|timeout|socket|getaddrinfo|ENOTFOUND|ECONN/i.test(String(error?.message ?? ""))
       ? "connect"
       : "query";
