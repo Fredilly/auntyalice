@@ -117,3 +117,7 @@ body{font-family:var(--font-interface)}
 .mock-a{margin:0 0 6px;font-size:.88rem;font-weight:700}
 .mock-x{margin:0 0 6px;font-size:.92rem;color:var(--muted);line-height:1.5}
 .mock-src{margin:0;font-size:.75rem;color:var(--muted)}
+
+/* ---- past-question picker ---- */
+.picker{background:#fff;border:1px solid var(--line);border-radius:20px;padding:clamp(20px,4vw,34px)}
+.picker-row{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 20px}
