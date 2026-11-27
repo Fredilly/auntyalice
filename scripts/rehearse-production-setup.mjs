@@ -10,6 +10,7 @@
  */
 import { readFileSync } from "node:fs";
 import { randomBytes, randomUUID } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import pg from "pg";
 
 const DEV_MARKER = "br-lucky-cloud-be62md6i";
@@ -148,13 +149,33 @@ try {
     throw new Error(`grant extraction looks wrong: ${statements.length} statements, ${unscoped.length} unscoped`);
   }
 
-  await admin.query(`create role ${APP_ROLE} login password '${appUrl.password}' nosuperuser nocreatedb nocreaterole nobypassrls`);
-  await admin.query(`grant usage on schema academy to ${APP_ROLE}`);
-  for (const statement of statements) {
-    try { await admin.query(statement); }
-    catch (error) { throw new Error(`grant failed: ${statement.slice(0, 60)}… — [${error.code}] ${error.message}`); }
+  // Run the REAL psql file where psql exists: extracting GRANT lines tested our parser,
+  // not the script the owner will actually execute.
+  const hasPsql = spawnSync("psql", ["--version"], { encoding: "utf8" }).status === 0;
+  let ranRealScript = false;
+
+  if (hasPsql) {
+    const run = spawnSync("psql", [URL_, "-v", "ON_ERROR_STOP=1", "-f", "db/production/10_app_role.sql"], {
+      encoding: "utf8",
+      env: { ...process.env, ACADEMY_APP_PASSWORD: appUrl.password },
+    });
+    const output = `${run.stdout || ""}${run.stderr || ""}`;
+    if (run.status !== 0) {
+      throw new Error(`db/production/10_app_role.sql failed (exit ${run.status}): ${output.slice(-400)}`);
+    }
+    // the password must never reach stdout or stderr
+    check("real psql script prints no password", !output.includes(appUrl.password));
+    ranRealScript = true;
+    console.log("executed db/production/10_app_role.sql via psql");
+  } else {
+    await admin.query(`create role ${APP_ROLE} login password '${appUrl.password}' nosuperuser nocreatedb nocreaterole nobypassrls`);
+    await admin.query(`grant usage on schema academy to ${APP_ROLE}`);
+    for (const statement of statements) {
+      try { await admin.query(statement); }
+      catch (error) { throw new Error(`grant failed: ${statement.slice(0, 60)}… — [${error.code}] ${error.message}`); }
+    }
+    console.log(`applied ${statements.length} grant statements (psql unavailable)`);
   }
-  console.log(`applied ${statements.length} grant statements`);
 
   const priv = (await admin.query(`
     select
