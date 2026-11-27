@@ -9,6 +9,28 @@ function db() {
   return pool;
 }
 
+/** Published lessons with their metadata, for the learning dashboard. */
+export async function listPublishedLessons() {
+  const p = db();
+  if (!p) return [];
+  try {
+    const { rows } = await p.query("select slug, content from academy.public_lessons order by slug");
+    return rows.map((row) => {
+      const content = row.content ?? {};
+      const exams = Array.isArray(content.examTracks) && content.examTracks.length ? content.examTracks : [];
+      return {
+        slug: row.slug,
+        title: content.title ?? row.slug,
+        questions: Array.isArray(content.questions) ? content.questions.length : 0,
+        exam: exams.length ? exams.map((e) => String(e).toUpperCase()).join(", ") : "Academy",
+      };
+    });
+  } catch (error) {
+    if (error?.code === "42P01") return [];
+    throw error;
+  }
+}
+
 /** Every published lesson's questions, flattened for the timed mock. */
 export async function listPublishedQuestions() {
   const p = db();

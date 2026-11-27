@@ -1,5 +1,27 @@
-import ExamBrowser from "../components/exam-browser";
-import Link from "next/link";
-import {RecentLesson} from "../components/recent-lesson";
-export const metadata={title:"Alice Academy"};
-export default function Academy(){return <main id="main"><section className="av-intro"><p className="av-kicker">Alice Academy · Free learning</p><h1>What will you learn today?</h1><p>Explore your exam, find a subject and learn at your own pace. No account needed.</p></section><RecentLesson/><section className="av-section"><ExamBrowser/></section><section className="av-section av-secondary-links"><Link className="text-link" href="/learn/subjects">Browse all subjects</Link><Link className="text-link" href="/learn/lesson/quadratic-equations">Try a sample lesson</Link></section><p className="av-note">Reviewed lessons and official syllabus mappings are in preparation. Sample material is available for preview.</p></main>}
+import type { Metadata } from "next";
+import LearningDashboard from "../components/learning-dashboard";
+import { listPublishedLessons } from "../lib/public-lessons.mjs";
+
+export const metadata: Metadata = {
+  title: "Alice Academy",
+  description: "Free lessons, diagnostics, revision and timed mocks for WAEC, NECO and JAMB candidates.",
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function Academy() {
+  const lessons = await listPublishedLessons();
+  return (
+    <main id="main" className="shell dash-shell">
+      <header className="dash-top">
+        <p className="dash-eyebrow">ALICE ACADEMY</p>
+        <h1>Your learning space.</h1>
+        <p className="dash-muted">
+          Free lessons and practice for Nigerian examinations. No account, no payment — progress is stored on
+          this device only.
+        </p>
+      </header>
+      <LearningDashboard lessons={lessons} />
+    </main>
+  );
+}
