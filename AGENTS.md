@@ -19,3 +19,42 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Merge protocol (mandatory)
+
+Written after a real incident: PR #48 merged at `e02ccaf` while the branch head was
+`9782639`, so the hardening fixes silently never reached main. Nothing in the merge
+flow caught it — the PR said green because an *earlier* commit was green.
+
+**Rules**
+
+1. **Freeze at MERGE-READY.** When a branch is declared merge-ready, it stops taking
+   commits. Any further work goes on a new branch. If a branch must be reopened, the
+   merge-ready declaration is withdrawn in the same breath.
+2. **Quote the SHA.** Every merge-ready report states the exact 40-character HEAD SHA
+   it refers to. "Green" without a SHA is not a claim.
+3. **Verify CI against that SHA, not the branch.** Check that the workflow runs list
+   contains runs whose `head_sha` equals the quoted SHA. A green run on a parent
+   commit proves nothing about the head:
+
+   ```bash
+   gh pr view <n> --json headRefOid -q .headRefOid
+   gh run list --branch <branch> --json headSha,conclusion \
+     -q '.[] | select(.headSha=="<sha>") | .conclusion'
+   ```
+
+   Both must appear, and be `success`.
+4. **Merge that SHA.** The merge must consume the verified SHA. If the PR head has
+   moved since verification, stop, re-verify, and only then merge.
+5. **Never merge an active development branch.** A branch receiving commits is not a
+   merge candidate. This is the rule that was broken.
+6. **Verify after merge.** Confirm the merge commit's tree contains the expected
+   changes (`git merge-base --is-ancestor <sha> origin/main`), then verify the
+   deployment behaviour that motivated the PR.
+
+**Post-merge check that would have caught the incident**
+
+```bash
+git fetch origin
+git merge-base --is-ancestor <quoted-sha> origin/main || echo "MERGE MISSED CONTENT"
+```
