@@ -27,7 +27,12 @@ CREATE TABLE IF NOT EXISTS academy.past_papers (
   licence_note  text,
   checked_at    date NOT NULL,
   created_at    timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (body, year, subject, paper)
+  UNIQUE (body, year, subject, paper),
+  -- a paper may only claim redistributable rights if it says what those rights are
+  CONSTRAINT past_papers_licence_required CHECK (
+    rights_status <> 'VERIFIED_REDISTRIBUTABLE' OR (licence_note IS NOT NULL AND length(btrim(licence_note)) > 0)
+  ),
+  CONSTRAINT past_papers_year_window CHECK (year BETWEEN 2000 AND 2100)
 );
 
 CREATE TABLE IF NOT EXISTS academy.past_questions (
@@ -45,12 +50,14 @@ CREATE TABLE IF NOT EXISTS academy.past_questions (
   difficulty     smallint CHECK (difficulty BETWEEN 1 AND 5),
   verification   text NOT NULL DEFAULT 'UNVERIFIED'
                  CHECK (verification IN ('UNVERIFIED','CHECKED','DISPUTED')),
-  lesson_slug    text,                 -- maps to academy.public_lessons(slug)
+  lesson_slug    text REFERENCES academy.lessons(slug) ON UPDATE CASCADE ON DELETE SET NULL, -- maps to a real lesson
   duplicate_of   uuid REFERENCES academy.past_questions(id),
   created_at     timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (paper_id, question_no)
+  UNIQUE (paper_id, question_no),
+  CONSTRAINT past_questions_no_self_duplicate CHECK (duplicate_of IS NULL OR duplicate_of <> id)
 );
 
+CREATE INDEX IF NOT EXISTS past_questions_paper_idx ON academy.past_questions (paper_id);
 CREATE INDEX IF NOT EXISTS past_questions_topic_idx ON academy.past_questions (topic);
 CREATE INDEX IF NOT EXISTS past_questions_lesson_idx ON academy.past_questions (lesson_slug);
 CREATE INDEX IF NOT EXISTS past_questions_verification_idx ON academy.past_questions (verification);
@@ -74,7 +81,21 @@ DROP TRIGGER IF EXISTS past_question_guard_trg ON academy.past_questions;
 CREATE TRIGGER past_question_guard_trg BEFORE INSERT OR UPDATE ON academy.past_questions
   FOR EACH ROW EXECUTE FUNCTION academy.past_question_guard();
 
-COMMIT;
+-- Downgrading a paper's rights must not leave already-stored question text in place.
+CREATE OR REPLACE FUNCTION academy.past_paper_rights_guard() RETURNS trigger AS $$
+BEGIN
+  IF NEW.rights_status <> 'VERIFIED_REDISTRIBUTABLE'
+     AND OLD.rights_status = 'VERIFIED_REDISTRIBUTABLE'
+     AND EXISTS (SELECT 1 FROM academy.past_questions WHERE paper_id = NEW.id AND body_text IS NOT NULL) THEN
+    RAISE EXCEPTION 'Cannot downgrade rights to %: % question(s) still hold text', NEW.rights_status,
+      (SELECT count(*) FROM academy.past_questions WHERE paper_id = NEW.id AND body_text IS NOT NULL);
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS past_paper_rights_guard_trg ON academy.past_papers;
+CREATE TRIGGER past_paper_rights_guard_trg BEFORE UPDATE OF rights_status ON academy.past_papers
+  FOR EACH ROW EXECUTE FUNCTION academy.past_paper_rights_guard();
 
 -- Coverage view: what exists per body/subject/year, and how much of it is usable.
 CREATE OR REPLACE VIEW academy.past_coverage AS
@@ -87,3 +108,5 @@ SELECT p.body, p.subject, p.year,
 FROM academy.past_papers p
 LEFT JOIN academy.past_questions q ON q.paper_id = p.id
 GROUP BY p.body, p.subject, p.year;
+
+COMMIT;
