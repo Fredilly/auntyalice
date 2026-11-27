@@ -24,7 +24,8 @@ export async function listPublishedQuestions() {
       if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length) continue;
       out.push({
         id: `${row.slug}:${q.id}`, prompt: q.prompt, options: q.options,
-        answer: q.answer, explanation: q.explanation ?? "", lesson: content.title ?? row.slug,
+        answer: q.answer, explanation: q.explanation ?? "",
+        lesson: content.title ?? row.slug, slug: row.slug,
       });
     }
   }
