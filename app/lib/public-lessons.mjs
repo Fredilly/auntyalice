@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { withDatabase } from "./db.mjs";
 
 /**
  * Acceptance-test artefacts live in the same table as real lessons. They must never
@@ -9,22 +9,13 @@ import { Pool } from "pg";
 const FIXTURE_SLUGS = new Set(["m2-acceptance", "isolation-probe", "submit-practice", "smoke"]);
 const isFixture = (slug) => FIXTURE_SLUGS.has(slug) || /^(m2-|isolation-|test-|fixture-)/.test(slug);
 
-let pool;
-function db() {
-  if (pool) return pool;
-  const url = process.env.DATABASE_URL;
-  if (!url) return null;
-  pool = new Pool({ connectionString: url, max: 2, ssl: { rejectUnauthorized: true } });
-  return pool;
-}
+const query = (sql) => withDatabase(db => db.query(sql));
 
 /** True when the database answers a trivial query. Lets pages tell "no content"
  *  apart from "the database is unreachable", which look identical to a visitor. */
 export async function databaseReachable() {
-  const p = db();
-  if (!p) return false;
   try {
-    await p.query("select 1 from academy.public_lessons limit 1");
+    await query("select 1 from academy.public_lessons limit 1");
     return true;
   } catch {
     return false;
@@ -33,10 +24,9 @@ export async function databaseReachable() {
 
 /** Published lessons with their metadata, for the learning dashboard. */
 export async function listPublishedLessons() {
-  const p = db();
-  if (!p) return [];
+  if (!process.env.DATABASE_URL) return [];
   try {
-    const { rows } = await p.query("select slug, content from academy.public_lessons order by slug");
+    const { rows } = await query("select slug, content from academy.public_lessons order by slug");
     return rows.filter((row) => !isFixture(row.slug)).map((row) => {
       const content = row.content ?? {};
       const exams = Array.isArray(content.examTracks) && content.examTracks.length ? content.examTracks : [];
@@ -55,9 +45,8 @@ export async function listPublishedLessons() {
 
 /** Every published lesson's questions, flattened for the timed mock. */
 export async function listPublishedQuestions() {
-  const p = db();
-  if (!p) return [];
-  const { rows } = await p.query(
+  if (!process.env.DATABASE_URL) return [];
+  const { rows } = await query(
     "select slug, content from academy.public_lessons order by slug",
   );
   const out = [];
