@@ -10,7 +10,8 @@ const SHELL_CACHE = `${VERSION}-shell`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const OWNED = [SHELL_CACHE, PAGE_CACHE, ASSET_CACHE];
-const SHELL = ["/offline"];
+// /learn is precached so the dashboard itself opens on a dead connection
+const SHELL = ["/learn", "/offline"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
