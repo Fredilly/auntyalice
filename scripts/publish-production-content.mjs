@@ -35,6 +35,15 @@ const isFixture = (slug) => FIXTURES.has(slug) || /^(m2-|isolation-|test-|fixtur
 
 const CHECKLIST = JSON.stringify({ accuracy: true, answerKeys: true, rights: true, safeguarding: true, accessibility: true });
 
+/**
+ * Two modes, on purpose. Automation must not cast a reviewer's vote:
+ *   --stage    insert revisions and submit them; approval is a human decision
+ *   --publish  publish revisions that carry an approval event from a staff member
+ *              who is not the author
+ */
+const MODE = process.argv.includes("--publish") ? "publish" : process.argv.includes("--stage") ? "stage" : null;
+if (!MODE) fail("pass --stage (submit for review) or --publish (publish approved revisions)");
+
 function envUrl(name) {
   const value = process.env[name];
   if (!value) fail(`${name} is not set`);
@@ -93,12 +102,32 @@ for (const item of PUBLISH) {
      values ($1,$2,$3,$4,'https://www.waecnigeria.org/')`,
     [revisionId, item.exam, item.edition, item.objective],
   );
-  for (const action of ["submitted", "approved", "published"]) {
-    const subject = action === "submitted" ? teacher.auth_subject : reviewer;
+  if (MODE === "stage") {
     await prod.query("select academy.advance_review($1,$2,$3,$4,$5::jsonb)", [
-      subject, revisionId, action, action === "approved" ? "reviewed" : "", CHECKLIST,
+      teacher.auth_subject, revisionId, "submitted", "", CHECKLIST,
     ]);
+    await prod.query("commit");
+    console.log("staged for review:", item.slug, "v" + version);
+    console.log("  a reviewer must approve it; this script will not approve on their behalf");
+    continue;
   }
+
+  // --publish: require a real approval recorded by someone other than the author
+  const approval = (
+    await prod.query(
+      `select e.actor_id, s.auth_subject, s.role
+       from academy.review_events e join academy.staff s on s.id = e.actor_id
+       where e.revision_id = $1 and e.action = 'approved' limit 1`,
+      [revisionId],
+    )
+  ).rows[0];
+  if (!approval || approval.role !== "reviewer" || approval.auth_subject === teacher.auth_subject) {
+    await prod.query("rollback");
+    fail(`${item.slug} has no genuine reviewer approval; run --stage and have a reviewer approve it`);
+  }
+  await prod.query("select academy.advance_review($1,$2,$3,$4,$5::jsonb)", [
+    approval.auth_subject, revisionId, "published", "", CHECKLIST,
+  ]);
   await prod.query("commit");
   published++;
   console.log("published", item.slug, "v" + version);

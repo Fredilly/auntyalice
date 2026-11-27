@@ -99,15 +99,21 @@ select role, count(*) from academy.staff group by role;  -- teacher 1, reviewer 
 
 ---
 
-## 4. Content — legitimate published lessons only
+## 4. Content — staged by automation, approved by a human
 
-The three reviewed lessons are published through the **real review flow** (author →
-reviewer → publish), not inserted directly:
+Two explicit modes. The script never casts a reviewer's vote:
 
 ```bash
-export DATABASE_URL="$PROD_APP_URL"    # academy_app connection string
-node scripts/publish-production-content.mjs
+export DATABASE_URL="$PROD_APP_URL"     # academy_app connection string
+export DEV_DATABASE_URL="$DEV_READONLY_URL"
+
+node scripts/publish-production-content.mjs --stage    # insert + submit only
+# a real reviewer approves in the staff UI
+node scripts/publish-production-content.mjs --publish  # publishes approved revisions
 ```
+
+`--publish` refuses any revision whose approval event is missing, was cast by a
+non-reviewer, or was cast by the author.
 
 The script refuses to run if:
 
@@ -137,14 +143,16 @@ Use the **pooled** connection string. Never paste the development branch string.
 **Gate 5 — production verification**
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' https://auntyalice.fredilly.workers.dev/learn
-curl -s https://auntyalice.fredilly.workers.dev/learn | grep -c 'Laws of Indices'   # ≥ 1
-curl -s -o /dev/null -w '%{http_code}\n' \
-  https://auntyalice.fredilly.workers.dev/learn/lesson/laws-of-indices               # 200
+node scripts/verify-production.mjs
 ```
 
-P0 is only closed when the last command returns **200 with lesson content**, not
-"temporarily unavailable".
+A 200 on `/learn` proves nothing — it renders an empty shell when the Worker has no
+database. The verifier asserts four things that only hold when production is wired up:
+the dashboard names at least one lesson, the known lesson returns 200 **with taught
+content**, it is not the "temporarily unavailable" page, and a genuinely missing
+lesson is a real 404. It exits non-zero on any failure.
+
+P0 is closed only when it prints `PRODUCTION VERIFIED`.
 
 ---
 
