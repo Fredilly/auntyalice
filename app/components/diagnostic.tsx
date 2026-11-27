@@ -58,7 +58,10 @@ export default function Diagnostic({ questions }: { questions: MockQuestion[] })
         </ol>
 
         <div className="mock-actions">
-          <Link className="cta" href="/learn/mock">Take a timed mock ↗</Link>
+          <Link className="cta" href={`/learn/revision?topics=${encodeURIComponent(
+            byLesson.filter((t) => t.right < t.total).map((t) => t.slug).join(",") || "all",
+          )}`}>Drill these gaps ↗</Link>
+          <Link className="outline-cta" href="/learn/mock">Timed mock</Link>
           <button className="outline-cta" onClick={() => { setDone(false); setAnswers({}); }}>Run it again</button>
         </div>
       </div>

@@ -133,3 +133,12 @@ body{font-family:var(--font-interface)}
 .diag-score{font-variant-numeric:tabular-nums;color:var(--muted)}
 .diag-bar{height:6px;background:#F1ECE6;border-radius:999px;overflow:hidden;margin-bottom:8px}
 .diag-bar span{display:block;height:100%;background:var(--orange);border-radius:999px}
+
+/* ---- revision feedback ---- */
+.rev-feedback{margin-top:16px;padding:14px 16px;border-radius:12px;border-left:4px solid var(--line)}
+.rev-feedback.right{border-color:#2E7D5B;background:#F3FAF6}
+.rev-feedback.wrong{border-color:#B3261E;background:#FDF4F3}
+.rev-verdict{font-weight:800;margin:0 0 6px}
+.rev-feedback p{margin:0 0 8px;line-height:1.55}
+.mock-option.correct{border-color:#2E7D5B;background:#F3FAF6}
+.mock-option.incorrect{border-color:#B3261E;background:#FDF4F3}
