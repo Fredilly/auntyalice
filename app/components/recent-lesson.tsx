@@ -13,5 +13,5 @@ export function RecentLesson(){
   const lesson=slug?getLesson(slug):undefined;
   if(!lesson)return null;
   function clear(){try{localStorage.removeItem(storageKey)}catch{}setSlug(null)}
-  return <section className="av-recent" aria-label="Recent lesson"><div><p className="av-kicker">Continue learning</p><h2>{lesson.title}</h2><p>{lesson.status==="preview"?"Development sample · ":""}Last lesson on this device</p><Link className="text-link" href={`/learn/lesson/${lesson.slug}`}>Resume lesson →</Link></div><button className="reset-button" type="button" onClick={clear}>Clear recent lesson</button></section>;
+  return <section className="av-recent" aria-label="Recent lesson"><div><p className="av-kicker">Continue learning</p><h2>{lesson.title}</h2><p>{lesson.status==="preview"?"Development sample · ":""}Last lesson on this device</p><Link className="text-link" href={`/learn/lesson/${lesson.slug}`}>Resume lesson</Link></div><button className="reset-button" type="button" onClick={clear}>Clear recent lesson</button></section>;
 }

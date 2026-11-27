@@ -43,13 +43,13 @@ export default function Admissions() {
               <p className="eyebrow">CHOOSING A SCHOOL</p>
               <h2>Primary</h2>
               <p>Early years through primary, with a focus on reading, number sense and confidence in speaking.</p>
-              <Link className="text-link" href="/primary">Explore primary ↗</Link>
+              <Link className="text-link" href="/primary">Explore primary</Link>
             </div>
             <div className="tile">
               <p className="eyebrow">CHOOSING A SCHOOL</p>
               <h2>Secondary</h2>
               <p>Junior and senior secondary, building towards WAEC, NECO and JAMB with subject teaching and practical work.</p>
-              <Link className="text-link" href="/secondary">Explore secondary ↗</Link>
+              <Link className="text-link" href="/secondary">Explore secondary</Link>
             </div>
             <div className="tile tile-muted">
               <p className="eyebrow">NOT YET VERIFIED</p>

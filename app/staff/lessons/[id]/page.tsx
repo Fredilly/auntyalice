@@ -13,7 +13,7 @@ export default async function StaffLessonPage({ params }: { params: Promise<{ id
   const result = await staffLessons.get(actor, id);
   return (
     <>
-      <Link className="staff-back" href="/staff">← Teacher workspace</Link>
+      <Link className="staff-back" href="/staff"> Teacher workspace</Link>
       <h1>Lesson editor</h1>
       {result.ok ? (
         <LessonEditor

@@ -127,7 +127,7 @@ export default function Header() {
                 onClick={() => setSheet(false)}
               >
                 {item.name}
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true"></span>
               </Link>
             ))}
           </nav>

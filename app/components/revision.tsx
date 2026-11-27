@@ -34,7 +34,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
           <button className="outline-cta" onClick={() => { setIndex(0); setChosen(null); setRight(0); setResults([]); setFinished(false); }}>
             Drill again
           </button>
-          <Link className="cta" href="/learn/mock">Timed mock ↗</Link>
+          <Link className="cta" href="/learn/mock">Timed mock</Link>
         </div>
       </div>
     );
@@ -73,7 +73,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
         <div className={isRight ? "rev-feedback right" : "rev-feedback wrong"}>
           <p className="rev-verdict">{isRight ? "Correct." : "Not quite."}</p>
           <p>{q.explanation}</p>
-          <Link className="text-link" href={`/learn/lesson/${q.slug}`}>Read the full lesson ↗</Link>
+          <Link className="text-link" href={`/learn/lesson/${q.slug}`}>Read the full lesson</Link>
         </div>
       )}
 
@@ -93,7 +93,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
             }
             else { setIndex((i) => i + 1); setChosen(null); }
           }}>
-          {index + 1 >= questions.length ? "Finish" : "Next →"}
+          {index + 1 >= questions.length ? "Finish" : "Next"}
         </button>
       </div>
     </div>

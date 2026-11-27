@@ -12,7 +12,7 @@ export default function Offline() {
           This page was not saved to your device. Lessons you have already opened will still
           open — go back and try one of those.
         </p>
-        <p><Link className="cta" href="/learn">Back to Academy ↗</Link></p>
+        <p><Link className="cta" href="/learn">Back to Academy</Link></p>
       </section>
     </main>
   );

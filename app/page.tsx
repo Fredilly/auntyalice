@@ -44,8 +44,8 @@ export default function Home() {
           <h1>Growing minds.<br /><em>Opening futures.</em></h1>
           <p>Primary and secondary school, plus a free academy for the exams that decide what comes next.</p>
           <div className="actions">
-            <Link className="cta" href="/admissions">Start an enquiry ↗</Link>
-            <Link className="outline-cta" href="/learn">Study for exams →</Link>
+            <Link className="cta" href="/admissions">Start an enquiry</Link>
+            <Link className="outline-cta" href="/learn">Study for exams</Link>
           </div>
         </div>
         <span className="hero-note">01 / THE AUNTY ALICE EXPERIENCE</span>
@@ -60,7 +60,7 @@ export default function Home() {
                 <span className="card-index">{door.kicker}</span>
                 <h2>{door.title}</h2>
                 <p>{door.body}</p>
-                <span className="door-action">{door.action} ↗</span>
+                <span className="door-action">{door.action}</span>
               </Link>
             ))}
           </div>

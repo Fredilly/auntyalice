@@ -58,3 +58,13 @@ flow caught it — the PR said green because an *earlier* commit was green.
 git fetch origin
 git merge-base --is-ancestor <quoted-sha> origin/main || echo "MERGE MISSED CONTENT"
 ```
+
+## UI rules
+
+- Icons come from `app/components/icons.tsx`. No emoji arrows, no icon fonts.
+- Navigation labels are sentence case and every destination must exist.
+- Touch targets are at least 48px; the bottom bar reserves safe-area padding.
+- Read DESIGN.md and COMPONENTS.md before changing shared UI.
+- Verify layout with **viewport** screenshots at 360px, not full-page captures:
+  fixed elements paint once in a stitched capture and appear mid-page, which is an
+  artefact, not a defect. Scroll to top, middle and bottom before judging.
