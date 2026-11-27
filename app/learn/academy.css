@@ -102,3 +102,24 @@ body:has(.av-nav) footer{margin-bottom:calc(72px + env(safe-area-inset-bottom))}
 .lx-section h2,.lx-mistakes h2{font-size:1.15rem}
 .lx-option,.lx-reveal,.lx-next{min-height:48px}
 .lx-option{border-radius:10px}
+
+/* Shared Academy action lists: one semantic link per row, no emoji or nested controls. */
+.av-content .page-intro{padding:8px 0 16px}
+.av-content .page-intro h1{font-family:var(--font-interface,Arial,sans-serif);font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.2;letter-spacing:-.025em;margin:0 0 10px}
+.av-content .page-intro p:not(.eyebrow){font-size:.94rem;line-height:1.5;margin:0 0 12px}
+.av-content .page-intro .eyebrow{margin:0 0 8px}
+.av-content .section{padding:16px 0}
+.av-content .av-section{margin:20px 0}
+.av-action-list{display:grid;gap:8px}
+.av-action-row{display:flex;align-items:center;gap:12px;min-height:64px;padding:12px 14px;border:1px solid var(--av-line);border-radius:14px;background:#f8f6f3;color:var(--ink);text-decoration:none}
+.av-action-row:hover{background:#f0ece7}
+.av-action-row:active{background:#e9e3dd}
+.av-action-icon{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:#ffe8d6;color:#8b3f10}
+.av-action-icon svg{width:22px;height:22px}
+.av-action-copy{display:grid;gap:3px;flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.35}
+.av-action-copy strong{font-size:.95rem;font-weight:600}
+.av-action-copy>span{font-size:.82rem;color:var(--av-muted)}
+.av-action-chevron{flex:none;color:var(--av-muted)}
+.av-content .av-action-list .av-note{margin:0}
+.av-content .page-intro .av-action-row{margin-top:14px;max-width:560px}
+@media(min-width:768px){.av-action-list{max-width:760px}}

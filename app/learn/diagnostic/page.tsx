@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import AcademyAction from "../../components/academy-action";
+import { IconClock } from "../../components/icons";
 import Diagnostic from "../../components/diagnostic";
 import { listPublishedQuestions } from "../../lib/public-lessons.mjs";
 
@@ -21,9 +22,7 @@ export default async function DiagnosticPage() {
           Answer every question. You get a ranked list of topics, weakest first, each
           pointing at the lesson that fixes it — not just a score.
         </p>
-        <p className="muted">
-          Want exam timing instead? <Link className="text-link" href="/learn/mock">Take a timed mock ↗</Link>
-        </p>
+        <AcademyAction href="/learn/mock" title="Take a timed mock" description="Practise under exam conditions" icon={<IconClock />} />
       </section>
       <section className="section">
         <Diagnostic questions={questions} />

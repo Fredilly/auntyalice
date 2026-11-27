@@ -46,7 +46,7 @@ export default async function LessonPage({ params }: {
   return (
     <main id="main" className="shell lesson">
       <RememberLesson slug={slug} />
-      <Link className="text-link" href="/learn">← Alice Academy</Link>
+      <Link className="text-link" href="/learn">Alice Academy</Link>
       <section className="page-intro">
         {sample && <p className="eyebrow">MATHEMATICS / {sample.topic}</p>}
         <h1>{lesson.title}</h1>
@@ -55,7 +55,7 @@ export default async function LessonPage({ params }: {
           <p className="preview-notice">Development sample · awaiting academic review. Not verified against any official exam syllabus.</p>
         )}
         {sample && <p>{sample.objective}</p>}
-        <a className="text-link" href={Array.isArray(published?.blocks) ? "#practice-heading" : "#practice-title"}>Jump to practice ↓</a>
+        <a className="text-link" href={Array.isArray(published?.blocks) ? "#practice-heading" : "#practice-title"}>Jump to practice</a>
       </section>
       <LessonVideo id={lesson.videoId ?? undefined} />
       {Array.isArray((published as { blocks?: unknown })?.blocks) ? null : (
@@ -81,7 +81,7 @@ export default async function LessonPage({ params }: {
       ) : (
         <Practice key={lessonKey} questions={lesson.questions} lessonKey={lessonKey} showAnswers={Boolean(published)} />
       )}
-      <Link className="text-link" href="/learn">Explore other subjects ↗</Link>
+      <Link className="text-link" href="/learn">Explore other subjects</Link>
     </main>
   );
 }
