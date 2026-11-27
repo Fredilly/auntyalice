@@ -7,6 +7,7 @@ import { exams } from "../../../lib/catalog";
 import { getLesson } from "../../../lib/lessons";
 import { getPublishedLesson } from "../../../lib/review-flow.mjs";
 import { publicLessons } from "../../../lib/staff-lesson-repo";
+import { databaseReachable } from "../../../lib/public-lessons.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,24 @@ export default async function LessonPage({ params }: {
   const published = await getPublishedLesson(publicLessons, slug);
   const sample = !published ? getLesson(slug) : undefined;
   const lesson = published ?? sample;
-  if (!lesson) notFound();
+
+  // A missing database and a missing lesson both surface as "no published revision".
+  // 404 tells a student the lesson does not exist, which is wrong and un-actionable
+  // when the real fault is that the Worker has no database credentials.
+  if (!lesson) {
+    if (await databaseReachable()) notFound();
+    return (
+      <main id="main" className="shell">
+        <p className="eyebrow">ALICE ACADEMY</p>
+        <h1>Lessons are temporarily unavailable.</h1>
+        <p>
+          The Academy cannot reach its lesson library right now. This is a service problem, not a
+          missing lesson — try again shortly.
+        </p>
+        <p><a className="text-link" href="/learn">Back to the Academy</a></p>
+      </main>
+    );
+  }
 
   const tracks = published && exams.filter(exam => published.examTracks.includes(exam.slug)).map(exam => exam.name);
   const lessonKey = published

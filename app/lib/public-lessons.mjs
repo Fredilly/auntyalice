@@ -18,6 +18,19 @@ function db() {
   return pool;
 }
 
+/** True when the database answers a trivial query. Lets pages tell "no content"
+ *  apart from "the database is unreachable", which look identical to a visitor. */
+export async function databaseReachable() {
+  const p = db();
+  if (!p) return false;
+  try {
+    await p.query("select 1 from academy.public_lessons limit 1");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Published lessons with their metadata, for the learning dashboard. */
 export async function listPublishedLessons() {
   const p = db();
