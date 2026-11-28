@@ -63,3 +63,6 @@ must resolve to a real screen — placeholder links ("Sample lesson") are not al
 
 **Safe areas.** The bottom bar pads with `env(safe-area-inset-bottom)`; every Academy
 page reserves `92px + inset` at the bottom so content is never hidden behind it.
+
+## Interaction language (owner-confirmed screenshot, 2026-11-28)
+Group compact rows within a single restrained surface, with hairline dividers instead of individual oversized cards. Internal navigation ends in an SVG chevron; external websites use an external-link icon only when leaving the platform; back navigation uses a left arrow; primary actions use the existing orange button with an optional right arrow; secondary actions use quiet blue text. No emoji arrows. Examination identity (JAMB, WAEC, NECO, BECE, Common Entrance) is emphasized using the existing track-specific accent palette; resource titles and descriptions remain neutral. Reuse the action-row component across exam directories and resource links. Whole rows are clickable, with visible focus and no nested controls.
