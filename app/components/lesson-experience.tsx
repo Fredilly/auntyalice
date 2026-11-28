@@ -12,7 +12,7 @@ export type Block =
   | { type: "mistakes"; items: { wrong: string; why: string; right: string }[] }
   | { type: "practice"; questions: { id: string; prompt: string; options: string[]; answer: number; explanation: string }[] };
 
-export default function LessonExperience({ slug, blocks }: { slug: string; blocks: Block[] }) {
+export default function LessonExperience({ slug, blocks, preview = false }: { slug: string; blocks: Block[]; preview?: boolean }) {
   const practice = useMemo(
     () => blocks.find((b): b is Extract<Block, { type: "practice" }> => b.type === "practice"),
     [blocks],
@@ -33,7 +33,7 @@ export default function LessonExperience({ slug, blocks }: { slug: string; block
     const record = { id: q.id, correct: option === q.answer };
     const next = [...results, record];
     setResults(next);
-    if (next.length === practice!.questions.length) recordAnswers(slug, next);
+    if (!preview && next.length === practice!.questions.length) recordAnswers(slug, next);
   }
 
   function advance() {
@@ -95,7 +95,7 @@ export default function LessonExperience({ slug, blocks }: { slug: string; block
                   {shown === 0 ? "Show me step 1" : `Show step ${shown + 1} of ${block.steps.length}`}
                 </button>
               ) : block.answer ? (
-                <p className="lx-answer"><Prose text={block.answer} /></p>
+                <Prose className="lx-answer" text={block.answer} />
               ) : null}
             </section>
           );
@@ -138,7 +138,7 @@ export default function LessonExperience({ slug, blocks }: { slug: string; block
                   return (
                     <button key={oi} className={`lx-option${state}`} onClick={() => answer(oi)} disabled={chosen !== null}>
                       <span className="lx-key">{"ABCDE"[oi]}</span>
-                      <span>{option}</span>
+                      <Prose className="lx-option-copy" text={option} />
                     </button>
                   );
                 })}
@@ -158,13 +158,13 @@ export default function LessonExperience({ slug, blocks }: { slug: string; block
             <div className="lx-done">
               <p className="lx-done-score">{correct} of {practice.questions.length} correct</p>
               <p className="lx-note">
-                {correct === practice.questions.length
+                {preview ? "Draft practice complete. Results are not saved to your learning progress." : correct === practice.questions.length
                   ? "Clean. Try the topic in a timed mock."
                   : "Re-run this practice until it is clean, then try a timed mock."}
               </p>
               <div className="lx-done-actions">
                 <button className="lx-next" onClick={() => { setIndex(0); setChosen(null); setResults([]); }}>Practise again</button>
-                <Link className="lx-link" href="/learn/mock">Timed mock</Link>
+                <Link className="lx-link" href={preview ? "/learn/preview" : "/learn/mock"}>{preview ? "Other previews" : "Timed mock"}</Link>
               </div>
             </div>
           )}
