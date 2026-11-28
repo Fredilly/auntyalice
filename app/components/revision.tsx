@@ -9,7 +9,7 @@ import type { MockQuestion } from "../lib/public-lessons.mjs";
  * next one. The point is the explanation, so it is shown before the student can move
  * on — no skipping past the part that teaches.
  */
-export default function Revision({ questions }: { questions: MockQuestion[] }) {
+export default function Revision({ questions, preview = false }: { questions: MockQuestion[]; preview?: boolean }) {
   const [index, setIndex] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
   const [right, setRight] = useState(0);
@@ -34,7 +34,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
           <button className="outline-cta" onClick={() => { setIndex(0); setChosen(null); setRight(0); setResults([]); setFinished(false); }}>
             Drill again
           </button>
-          <Link className="cta" href="/learn/mock">Timed mock</Link>
+          <Link className="cta" href={preview?"/learn/preview/mock":"/learn/mock"}>Timed mock</Link>
         </div>
       </div>
     );
@@ -73,7 +73,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
         <div className={isRight ? "rev-feedback right" : "rev-feedback wrong"}>
           <p className="rev-verdict">{isRight ? "Correct." : "Not quite."}</p>
           <p>{q.explanation}</p>
-          <Link className="text-link" href={`/learn/lesson/${q.slug}`}>Read the full lesson</Link>
+          <Link className="text-link" href={`/learn/${preview?"preview":"lesson"}/${q.slug}`}>Read the full lesson</Link>
         </div>
       )}
 
@@ -88,7 +88,7 @@ export default function Revision({ questions }: { questions: MockQuestion[] }) {
                 list.push({ id: r.id, correct: r.correct });
                 byLesson.set(r.slug, list);
               }
-              for (const [slug, list] of byLesson) if (slug !== "unknown") recordAnswers(slug, list);
+              for (const [slug, list] of byLesson) if (!preview && slug !== "unknown") recordAnswers(slug, list);
               setFinished(true);
             }
             else { setIndex((i) => i + 1); setChosen(null); }
