@@ -12,6 +12,9 @@
  */
 const BASE = process.env.PROD_BASE || "https://auntyalice.fredilly.workers.dev";
 const LESSON = process.env.LESSON_SLUG || "laws-of-indices";
+const expectedTitle = process.env.LESSON_TITLE || (LESSON === "laws-of-indices" ? "Laws of Indices" : LESSON.replaceAll("-", " "));
+const normalize = s => s.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+const mainContent = body => body.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? "";
 
 let failures = 0;
 const check = (label, ok, detail = "") => {
@@ -27,13 +30,16 @@ const get = async (path) => {
 try {
   const home = await get("/learn");
   check("/learn returns 200", home.status === 200, String(home.status));
-  check("/learn lists at least one lesson", /laws of indices|percentages|simultaneous/i.test(home.body));
-  check("/learn is not an empty shell", !/0\s*lessons started/.test(home.body) || /laws of indices/i.test(home.body));
+  check("/learn links to the expected lesson", home.status === 200 && mainContent(home.body).includes(`href="/learn/lesson/${LESSON}"`));
+  check("/learn shows expected lesson title", home.status === 200 && normalize(mainContent(home.body)).includes(expectedTitle.toLowerCase()));
 
   const lesson = await get(`/learn/lesson/${LESSON}`);
   check(`${LESSON} returns 200`, lesson.status === 200, String(lesson.status));
-  check(`${LESSON} contains taught content`,
-    /index|indices|multipl|superscript|power/i.test(lesson.body));
+  const main = mainContent(lesson.body);
+  const heading = main.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? "";
+  const taught = /class="[^"]*\b(?:published-lesson-notes|lx-section|lx-worked)\b[^"]*"/i.test(main);
+  const practice = /id="(?:practice-title|practice-heading)"/i.test(main);
+  check(`${LESSON} contains taught content`, lesson.status === 200 && normalize(heading) === expectedTitle.toLowerCase() && taught && practice);
   check(`${LESSON} is not the unavailable page`,
     !/temporarily unavailable/i.test(lesson.body));
 
