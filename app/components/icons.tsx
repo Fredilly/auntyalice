@@ -33,3 +33,10 @@ export const IconArrow = ({ className }: P) => (
 export const IconDoc = ({ className }: P) => (
   <svg {...base} className={className}><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
 );
+
+export const IconChevron = ({ className }: P) => (
+  <svg {...base} className={className}><path d="m9 6 6 6-6 6"/></svg>
+);
+export const IconExternal = ({ className }: P) => (
+  <svg {...base} className={className}><path d="M13 5h6v6m0-6-9 9"/><path d="M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+);

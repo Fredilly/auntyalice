@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AcademyAction from "../../components/academy-action";
-import { IconBook, IconTarget } from "../../components/icons";
+import { IconBook } from "../../components/icons";
 import Revision from "../../components/revision";
 import { listPublishedQuestions } from "../../lib/public-lessons.mjs";
 
@@ -36,7 +36,7 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
       {!wanted.length && (
         <section className="av-section" aria-labelledby="topics-heading">
           <h2 id="topics-heading">Choose a topic</h2>
-          <div className="av-action-list">
+          <div className="av-action-list av-grouped">
             {all.length > 0 ? (
               <AcademyAction href="/learn/revision?topics=all" title="All topics" description="Practise across available topics" icon={<IconBook />} />
             ) : (
@@ -45,8 +45,9 @@ export default async function RevisionPage({ searchParams }: { searchParams: Pro
             {topicsAvailable.map(([slug, title]) => (
               <AcademyAction key={slug} href={`/learn/revision?topics=${encodeURIComponent(slug)}`} title={title} icon={<IconBook />} />
             ))}
-            <AcademyAction href="/learn/diagnostic" title="Find your weak topics" description="Take a diagnostic assessment" icon={<IconTarget />} />
           </div>
+          <p className="av-revision-hint">Not sure what to study?</p>
+          <AcademyAction href="/learn/diagnostic" title="Take the diagnostic" secondary />
         </section>
       )}
 

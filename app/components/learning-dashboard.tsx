@@ -104,7 +104,7 @@ export default function LearningDashboard({ lessons }: Props) {
         <Link className="tool" href="/learn/mock">
           <IconClock className="tool-ico" /><span className="tool-name">Timed mock</span><span className="tool-sub">Exam conditions</span>
         </Link>
-        <Link className="tool" href="/learn/past-questions">
+        <Link className="tool" href="/learn/past-papers">
           <IconDoc className="tool-ico" /><span className="tool-name">Past questions</span><span className="tool-sub">By exam &amp; year</span>
         </Link>
       </section>

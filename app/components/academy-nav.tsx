@@ -14,14 +14,14 @@ const items = [
     href: "/learn/subjects",
     label: "Study",
     Icon: IconBook,
-    match: (p: string) => p.startsWith("/learn/subjects") || p.startsWith("/learn/lesson"),
+    match: (p: string) => p.startsWith("/learn/subjects") || p.startsWith("/learn/lesson") || /^\/learn\/(exams|jamb|waec|neco|bece|common-entrance)(\/|$)/.test(p),
   },
   {
     href: "/learn/mock",
     label: "Practice",
     Icon: IconClock,
     match: (p: string) =>
-      p.startsWith("/learn/mock") || p.startsWith("/learn/past-questions") || p.startsWith("/learn/revision"),
+      p.startsWith("/learn/mock") || p.startsWith("/learn/past-questions") || p.startsWith("/learn/past-papers") || p.startsWith("/learn/revision"),
   },
   { href: "/learn/diagnostic", label: "Progress", Icon: IconPulse, match: (p: string) => p.startsWith("/learn/diagnostic") },
 ];

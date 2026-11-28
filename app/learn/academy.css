@@ -123,3 +123,26 @@ body:has(.av-nav) footer{margin-bottom:calc(72px + env(safe-area-inset-bottom))}
 .av-content .av-action-list .av-note{margin:0}
 .av-content .page-intro .av-action-row{margin-top:14px;max-width:560px}
 @media(min-width:768px){.av-action-list{max-width:760px}}
+
+/* Exam identity is the highlight; resource content stays quiet and scannable. */
+.av-exam-heading{display:flex;align-items:center;gap:8px}
+.av-exam-heading>span,.av-exam-chip{display:inline-flex;align-items:center;padding:5px 11px;border-radius:8px;font-size:.82rem;font-weight:700;line-height:1.3;background:var(--exam-bg,#f0ede9);color:var(--exam-ink,#554d46)}
+[data-tone=jamb]{--exam-bg:#e6efff;--exam-ink:#28538c}
+[data-tone=waec]{--exam-bg:#ffead8;--exam-ink:#924519}
+[data-tone=neco]{--exam-bg:#e3f1e8;--exam-ink:#296344}
+[data-tone=bece]{--exam-bg:#eee7fb;--exam-ink:#65418c}
+[data-tone=common-entrance]{--exam-bg:#fcf0cc;--exam-ink:#775516}
+.av-grouped{gap:0;border:1px solid var(--av-line);border-radius:14px;background:#fff}
+.av-grouped .av-action-row{border:0;border-radius:0;background:transparent;min-height:64px;padding:12px}
+.av-grouped .av-action-row:first-child{border-radius:13px 13px 0 0}
+.av-grouped .av-action-row:last-child{border-radius:0 0 13px 13px}
+.av-grouped .av-action-row:only-child{border-radius:13px}
+.av-grouped .av-action-row+.av-action-row{border-top:1px solid var(--av-line)}
+.av-grouped .av-action-row:hover{background:#f6f4f1}
+.av-grouped .av-action-icon{width:36px;height:36px;background:#f4f2ef;color:#625c56}
+.av-action-row[data-tone] .av-action-icon{background:var(--exam-bg,#f4f2ef);color:var(--exam-ink,#625c56)}
+.av-action-row[data-tone] .av-action-copy strong{color:var(--exam-ink,#141110)}
+.av-action-secondary{color:var(--blue);border:0;background:transparent}
+.av-action-secondary .av-action-chevron{color:var(--blue)}
+.av-exam-chip{min-height:44px;text-decoration:none}
+.av-action-chevron{width:18px;height:18px}
