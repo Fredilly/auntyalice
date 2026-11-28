@@ -7,7 +7,7 @@ import type { MockQuestion } from "../lib/public-lessons.mjs";
  * Diagnostic assessment. No timer, no score out of ten — the output is a ranked list
  * of topics, weakest first, each pointing at the lesson that fixes it.
  */
-export default function Diagnostic({ questions }: { questions: MockQuestion[] }) {
+export default function Diagnostic({ questions, preview = false }: { questions: MockQuestion[]; preview?: boolean }) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
 
@@ -49,7 +49,7 @@ export default function Diagnostic({ questions }: { questions: MockQuestion[] })
                   <span className="diag-score">{topic.right}/{topic.total}</span>
                 </div>
                 <div className="diag-bar"><span style={{ width: `${pct}%` }} /></div>
-                <Link className="text-link" href={`/learn/lesson/${topic.slug}`}>
+                <Link className="text-link" href={`/learn/${preview?"preview":"lesson"}/${topic.slug}`}>
                   {pct === 100 ? "Review the lesson" : "Fix this topic"}
                 </Link>
               </li>
@@ -58,10 +58,10 @@ export default function Diagnostic({ questions }: { questions: MockQuestion[] })
         </ol>
 
         <div className="mock-actions">
-          <Link className="cta" href={`/learn/revision?topics=${encodeURIComponent(
+          <Link className="cta" href={`/learn/${preview?"preview/":""}revision?topics=${encodeURIComponent(
             byLesson.filter((t) => t.right < t.total).map((t) => t.slug).join(",") || "all",
           )}`}>Drill these gaps</Link>
-          <Link className="outline-cta" href="/learn/mock">Timed mock</Link>
+          <Link className="outline-cta" href={preview?"/learn/preview/mock":"/learn/mock"}>Timed mock</Link>
           <button className="outline-cta" onClick={() => { setDone(false); setAnswers({}); }}>Run it again</button>
         </div>
       </div>
