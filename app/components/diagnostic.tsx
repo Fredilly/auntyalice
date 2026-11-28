@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Prose } from "./math";
 import { useMemo, useState } from "react";
 import type { MockQuestion } from "../lib/public-lessons.mjs";
 
@@ -77,13 +78,13 @@ export default function Diagnostic({ questions, preview = false }: { questions: 
       <ol className="diag-questions">
         {questions.map((q, i) => (
           <li key={q.id}>
-            <p className="mock-q">{i + 1}. {q.prompt}</p>
+            <Prose className="mock-q" text={`${i + 1}. ${q.prompt}`} />
             <div className="mock-options">
               {q.options.map((option, oi) => (
                 <label key={oi} className={answers[q.id] === oi ? "mock-option chosen" : "mock-option"}>
                   <input type="radio" name={q.id} checked={answers[q.id] === oi}
                     onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: oi }))} />
-                  <span>{option}</span>
+                  <Prose text={option} />
                 </label>
               ))}
             </div>
