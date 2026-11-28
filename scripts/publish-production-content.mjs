@@ -17,7 +17,6 @@
  *   export DEV_DATABASE_URL="$DEV_READONLY_URL"
  *   node scripts/publish-production-content.mjs
  */
-import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import pg from "pg";
 
@@ -33,7 +32,7 @@ const PUBLISH = [
 const FIXTURES = new Set(["m2-acceptance", "isolation-probe", "submit-practice", "smoke"]);
 const isFixture = (slug) => FIXTURES.has(slug) || /^(m2-|isolation-|test-|fixture-)/.test(slug);
 
-const CHECKLIST = JSON.stringify({ accuracy: true, answerKeys: true, rights: true, safeguarding: true, accessibility: true });
+
 
 /**
  * Two modes, on purpose. Automation must not cast a reviewer's vote:
@@ -75,6 +74,28 @@ let published = 0;
 for (const item of PUBLISH) {
   if (isFixture(item.slug)) { console.warn("skip fixture:", item.slug); continue; }
 
+  if (MODE === "publish") {
+    // Publish the exact latest revision already approved by a human reviewer.
+    // Never insert another revision in this mode.
+    const { rows: [approved] } = await prod.query(
+      `select r.id, r.version, s.auth_subject
+       from academy.lessons l
+       join lateral (select * from academy.revisions where lesson_id=l.id order by version desc limit 1) r on true
+       join lateral (select * from academy.review_events where revision_id=r.id order by id desc limit 1) e on true
+       join academy.staff s on s.id=e.actor_id
+       where l.slug=$1 and not l.is_fixture and e.action='approved'
+         and s.active and s.role='reviewer' and s.id<>r.author_id and s.id<>l.owner_id`,
+      [item.slug],
+    );
+    if (!approved) fail(`${item.slug} has no current genuine reviewer approval`);
+    await prod.query("select academy.advance_review($1,$2,$3,$4,$5::jsonb)", [
+      approved.auth_subject, approved.id, "published", "", null,
+    ]);
+    published++;
+    console.log("published", item.slug, "v" + approved.version);
+    continue;
+  }
+
   const source = (await dev.query("select content from academy.public_lessons where slug=$1", [item.slug])).rows[0];
   if (!source) { console.warn("skip (not published on development):", item.slug); continue; }
 
@@ -102,35 +123,12 @@ for (const item of PUBLISH) {
      values ($1,$2,$3,$4,'https://www.waecnigeria.org/')`,
     [revisionId, item.exam, item.edition, item.objective],
   );
-  if (MODE === "stage") {
-    await prod.query("select academy.advance_review($1,$2,$3,$4,$5::jsonb)", [
-      teacher.auth_subject, revisionId, "submitted", "", CHECKLIST,
-    ]);
-    await prod.query("commit");
-    console.log("staged for review:", item.slug, "v" + version);
-    console.log("  a reviewer must approve it; this script will not approve on their behalf");
-    continue;
-  }
-
-  // --publish: require a real approval recorded by someone other than the author
-  const approval = (
-    await prod.query(
-      `select e.actor_id, s.auth_subject, s.role
-       from academy.review_events e join academy.staff s on s.id = e.actor_id
-       where e.revision_id = $1 and e.action = 'approved' limit 1`,
-      [revisionId],
-    )
-  ).rows[0];
-  if (!approval || approval.role !== "reviewer" || approval.auth_subject === teacher.auth_subject) {
-    await prod.query("rollback");
-    fail(`${item.slug} has no genuine reviewer approval; run --stage and have a reviewer approve it`);
-  }
   await prod.query("select academy.advance_review($1,$2,$3,$4,$5::jsonb)", [
-    approval.auth_subject, revisionId, "published", "", CHECKLIST,
+    teacher.auth_subject, revisionId, "submitted", "", null,
   ]);
   await prod.query("commit");
-  published++;
-  console.log("published", item.slug, "v" + version);
+  console.log("staged for review:", item.slug, "v" + version);
+
 }
 
 const fixtures = (await prod.query("select count(*)::int as n from academy.lessons where is_fixture")).rows[0].n;
