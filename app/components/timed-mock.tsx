@@ -10,7 +10,7 @@ export type MockQuestion = { id: string; prompt: string; options: Option[]; answ
  * One question at a time, answers withheld until submission, then every answer is
  * explained. Built over our own questions — no third-party paper text.
  */
-export default function TimedMock({ questions, minutes, title }: { questions: MockQuestion[]; minutes: number; title: string }) {
+export default function TimedMock({ questions, minutes, title, preview = false }: { questions: MockQuestion[]; minutes: number; title: string; preview?: boolean }) {
   const [started, setStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -38,7 +38,7 @@ export default function TimedMock({ questions, minutes, title }: { questions: Mo
       list.push({ id: q.id, correct: answers[q.id] === q.answer });
       byLesson.set(slug, list);
     }
-    for (const [slug, results] of byLesson) if (slug !== "unknown") recordAnswers(slug, results);
+    for (const [slug, results] of byLesson) if (!preview && slug !== "unknown") recordAnswers(slug, results);
     setSubmitted(true);
   };
 
@@ -52,7 +52,7 @@ export default function TimedMock({ questions, minutes, title }: { questions: Mo
         <p className="eyebrow">{title}</p>
         <h2>{questions.length} questions · {minutes} minutes</h2>
         <p>Answers are hidden until you submit. The timer starts when you begin and submits automatically at zero.</p>
-        <button className="cta" onClick={() => setStarted(true)}>Start the mock ↗</button>
+        <button className="cta" onClick={() => setStarted(true)}>Start the mock</button>
       </div>
     );
   }
@@ -108,9 +108,9 @@ export default function TimedMock({ questions, minutes, title }: { questions: Mo
         ))}
       </div>
       <div className="mock-actions">
-        <button className="outline-cta" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))}>← Back</button>
+        <button className="outline-cta" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))}>Back</button>
         {index < questions.length - 1
-          ? <button className="cta" onClick={() => setIndex((i) => i + 1)}>Next →</button>
+          ? <button className="cta" onClick={() => setIndex((i) => i + 1)}>Next</button>
           : <button className="cta" onClick={submit}>Submit</button>}
       </div>
       <p className="muted mock-progress">{Object.keys(answers).length} of {questions.length} answered</p>
