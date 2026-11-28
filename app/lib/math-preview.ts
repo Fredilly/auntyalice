@@ -266,3 +266,5 @@ export const mathPreviews: PreviewLesson[] = [{slug:"laws-of-indices",title:"Law
     ]
   }
 ] as PreviewLesson[]];
+
+export const previewQuestions = mathPreviews.flatMap(l => l.blocks.flatMap(b => b.type === "practice" ? b.questions.map(q => ({...q,id:l.slug+":"+q.id,slug:l.slug,lesson:l.title})) : []));
