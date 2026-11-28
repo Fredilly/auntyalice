@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Prose } from "./math";
 import { useState } from "react";
 import { recordAnswers } from "../lib/progress";
 import type { MockQuestion } from "../lib/public-lessons.mjs";
@@ -51,7 +52,7 @@ export default function Revision({ questions, preview = false }: { questions: Mo
         <span className="muted">{q.lesson}</span>
       </div>
 
-      <h2 className="mock-prompt">{q.prompt}</h2>
+      <div className="mock-prompt"><Prose text={q.prompt} /></div>
       <div className="mock-options">
         {q.options.map((option, i) => {
           const state = !answered ? "" : i === q.answer ? " correct" : i === chosen ? " incorrect" : "";
@@ -63,7 +64,7 @@ export default function Revision({ questions, preview = false }: { questions: Mo
                   if (i === q.answer) setRight((n) => n + 1);
                   setResults((prev) => [...prev, { slug: q.slug, id: q.id, correct: i === q.answer }]);
                 }} />
-              <span>{option}</span>
+              <Prose text={option} />
             </label>
           );
         })}
@@ -72,7 +73,7 @@ export default function Revision({ questions, preview = false }: { questions: Mo
       {answered && (
         <div className={isRight ? "rev-feedback right" : "rev-feedback wrong"}>
           <p className="rev-verdict">{isRight ? "Correct." : "Not quite."}</p>
-          <p>{q.explanation}</p>
+          <Prose text={q.explanation} />
           <Link className="text-link" href={`/learn/${preview?"preview":"lesson"}/${q.slug}`}>Read the full lesson</Link>
         </div>
       )}
