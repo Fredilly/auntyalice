@@ -1,0 +1,4 @@
+import Revision from "../../../components/revision";
+import { previewQuestions, mathPreviews } from "../../../lib/math-preview";
+import Link from "next/link";
+export default async function Page({searchParams}:{searchParams:Promise<{topics?:string}>}){const {topics}=await searchParams;const selected=topics?.split(",")??[];const questions=previewQuestions.filter(q=>selected.includes("all")||selected.includes(q.slug));return <main id="main"><section className="av-intro"><h1>Revision preview</h1><p>Draft questions for testing only. Results are not saved.</p></section>{questions.length?<Revision key={topics} questions={questions} preview />:<div className="av-action-list av-grouped">{[{slug:"all",title:"All topics"},...mathPreviews].map(l=><Link key={l.slug} className="av-action-row" href={`/learn/preview/revision?topics=${l.slug}`}>{l.title}</Link>)}</div>}</main>}
