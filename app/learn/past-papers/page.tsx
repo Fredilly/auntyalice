@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import AcademyAction from "../../components/academy-action";
+import { IconDoc, IconClock } from "../../components/icons";
 
 export const metadata: Metadata = {
   title: "Past papers",
@@ -16,48 +18,26 @@ const official = [
 
 export default function PastPapers() {
   return (
-    <main id="main" className="shell">
-      <section className="page-intro">
-        <p className="eyebrow">OFFICIAL SOURCES</p>
-        <h1>Past papers.</h1>
-        <p>
-          These are the official platforms where the examining bodies publish their own material. We link to
-          them and do not copy them: the papers are the examiners&apos; copyright, and reposting them is not
-          ours to do.
-        </p>
+    <main id="main">
+      <section className="av-intro">
+        <p className="av-kicker">Official sources</p>
+        <h1>Exam resources</h1>
+        <p>Past papers, syllabuses and guidance from the examination bodies. We link to their material rather than reproduce it.</p>
       </section>
-
-      <section className="section">
-        <div className="grid">
-          {official.map((item) => (
-            <article className="tile" key={item.href + item.what}>
-              <p className="eyebrow">{item.body}</p>
-              <h2>{item.what}</h2>
-              <p className="muted">{item.note}</p>
-              <a className="text-link" href={item.href} target="_blank" rel="noreferrer">Open official source</a>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="proposed-banner">
-          <strong>Year-specific papers are not hosted here.</strong> Official platforms give you the papers
-          directly. If a verified, licensed archive is later added, it will be labelled by body, year, paper
-          and question number — and only after written permission.
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="tile">
-          <p className="eyebrow">PRACTISE NOW</p>
-          <h2>Timed mock, written by us.</h2>
-          <p>
-            Our own questions in the exam&apos;s style, timed, with every answer explained. Clearly not a past
-            paper — and useful from the day it ships.
-          </p>
-          <a className="cta" href="/learn/mock">Start a mock</a>
-        </div>
+      {["WAEC", "JAMB", "NECO"].map(body => (
+        <section className="av-section" key={body} aria-labelledby={body + "-resources"}>
+          <h2 id={body + "-resources"} className="av-exam-heading" data-tone={body.toLowerCase()}><span>{body}</span></h2>
+          <div className="av-action-list av-grouped">
+            {official.filter(item => item.body === body).map(item => (
+              <AcademyAction key={item.href} href={item.href} title={item.what} description={item.note} external icon={<IconDoc />} />
+            ))}
+          </div>
+        </section>
+      ))}
+      <p className="av-note">Year-specific papers are not hosted here. A licensed archive will only be added with permission.</p>
+      <section className="av-section">
+        <h2>Practise now</h2>
+        <div className="av-action-list av-grouped"><AcademyAction href="/learn/mock" title="Start a timed mock" description="Original Academy questions with explanations" icon={<IconClock />} /></div>
       </section>
     </main>
   );
