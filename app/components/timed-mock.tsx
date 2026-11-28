@@ -1,4 +1,5 @@
 "use client";
+import { Prose } from "./math";
 import { useEffect, useMemo, useState } from "react";
 import { recordAnswers } from "../lib/progress";
 
@@ -72,12 +73,9 @@ export default function TimedMock({ questions, minutes, title, preview = false }
             const right = chosen === q.answer;
             return (
               <li key={q.id} className={right ? "right" : "wrong"}>
-                <p className="mock-q">{i + 1}. {q.prompt}</p>
-                <p className="mock-a">
-                  {right ? "Correct" : chosen === undefined ? "Not answered" : `You chose: ${q.options[chosen]}`}
-                  {!right && <> · Answer: {q.options[q.answer]}</>}
-                </p>
-                <p className="mock-x">{q.explanation}</p>
+                <Prose className="mock-q" text={`${i + 1}. ${q.prompt}`} />
+                <Prose className="mock-a" text={(right ? "Correct" : chosen === undefined ? "Not answered" : `You chose: ${q.options[chosen]}`) + (!right ? ` · Answer: ${q.options[q.answer]}` : "")} />
+                <Prose className="mock-x" text={q.explanation} />
                 <p className="mock-src">From the lesson: {q.lesson}</p>
               </li>
             );
@@ -97,13 +95,13 @@ export default function TimedMock({ questions, minutes, title, preview = false }
         <span>Question {index + 1} of {questions.length}</span>
         <span className={remaining < 60 ? "mock-clock low" : "mock-clock"} aria-live="off">{mm}:{ss}</span>
       </div>
-      <h2 className="mock-prompt">{q.prompt}</h2>
+      <div className="mock-prompt"><Prose text={q.prompt} /></div>
       <div className="mock-options">
         {q.options.map((option, i) => (
           <label key={i} className={answers[q.id] === i ? "mock-option chosen" : "mock-option"}>
             <input type="radio" name={q.id} checked={answers[q.id] === i}
               onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: i }))} />
-            <span>{option}</span>
+            <Prose text={option} />
           </label>
         ))}
       </div>
